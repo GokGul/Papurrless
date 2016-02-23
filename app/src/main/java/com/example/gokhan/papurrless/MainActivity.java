@@ -138,11 +138,19 @@ public class MainActivity extends AppCompatActivity {
             switch (position) {
                 case 0:
                     favFrag = (ListFragment.FavFragment) createdFragment;
+                    if(allFrag!=null)
+                    {
+                        favFrag.setOtherFrag(allFrag);
+                        allFrag.setOtherFrag(favFrag);
+                    }
                     break;
                 case 1:
                     allFrag = (ListFragment.AllFragment) createdFragment;
-                    allFrag.setOtherFrag(favFrag);
-                    favFrag.setOtherFrag(allFrag);
+                    if(favFrag!=null)
+                    {
+                        allFrag.setOtherFrag(favFrag);
+                        favFrag.setOtherFrag(allFrag);
+                    }
                     break;
             }
             return createdFragment;
