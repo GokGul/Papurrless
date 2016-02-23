@@ -1,13 +1,10 @@
 package com.example.gokhan.papurrless;
 
-import android.app.SearchManager;
-import android.app.SearchableInfo;
 import android.content.Context;
 import android.support.design.widget.TabLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 
 import android.support.v4.app.Fragment;
@@ -77,22 +74,8 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
-        setupSearchView(menu);
 
         return true;
-    }
-
-    private void setupSearchView(Menu menu) {
-        SearchManager sm = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        SearchableInfo si = sm.getSearchableInfo(getComponentName());
-        if (si == null) {
-            Log.wtf(tag, "failed to get searchable info");
-            return;
-        }
-        SearchView sv = (SearchView) menu.findItem(R.id.search).getActionView();
-        sv.setSearchableInfo(si);
-        // Do not iconify the widget; expand it by default
-        sv.setIconifiedByDefault(false);
     }
 
     @Override
@@ -104,12 +87,6 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            return true;
-        }
-
-        if (id == R.id.search)
-        {
-            onSearchRequested();
             return true;
         }
 
