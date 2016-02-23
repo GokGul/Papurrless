@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
+    <color name="colorPrimary">#8bc34a</color>
+    <color name="colorPrimaryDark">#689f38</color>
+    <color name="colorAccent">#81d4fa</color>
+    <color name="AH">#00A0E2</color>
+    <color name="Jumbo">#FFC704</color>
+    <color name="Aldi">#001E78</color>
+    <color name="Plus">#A9C938</color>
+    <color name="Spar">#00732D</color>
+    <color name="Lidl">#2250A9</color>
+    <color name="Dirk">#DD0000</color>
+    <color name="Makro">#FAE300</color>
+    <color name="Sligro">#00523C</color>
+    <color name="Default">#9E9E9E</color>
 </resources>
