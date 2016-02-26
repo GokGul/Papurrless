@@ -1,6 +1,12 @@
 package com.example.gokhan.papurrless;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.design.widget.TabLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -19,6 +25,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import java.io.File;
+
 public class MainActivity extends AppCompatActivity {
     private static String tag = "Main Activity";
 
@@ -36,9 +44,14 @@ public class MainActivity extends AppCompatActivity {
      * The {@link ViewPager} that will host the section contents.
      */
     private ViewPager mViewPager;
-
     private ListFragment.AllFragment allFrag;
     private ListFragment.FavFragment favFrag;
+
+    private final int TAKE_PICTURE = 0;
+    private final int SELECT_FILE = 1;
+    public static final int MEDIA_TYPE_IMAGE = 1;
+
+    private String resultUrl = "result.txt";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,8 +75,7 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                captureImageFromSdCard(view);
             }
         });
 
@@ -91,6 +103,79 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+    public void captureImageFromSdCard( View view ) {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("image/*");
+
+        startActivityForResult(intent, SELECT_FILE);
+    }
+
+    private static Uri getOutputMediaFileUri(){
+        return Uri.fromFile(getOutputMediaFile());
+    }
+
+    /** Create a File for saving an image or video */
+    private static File getOutputMediaFile(){
+        // To be safe, you should check that the SDCard is mounted
+        // using Environment.getExternalStorageState() before doing this.
+
+        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES), "ABBYY Cloud OCR SDK Demo App");
+        // This location works best if you want the created images to be shared
+        // between applications and persist after your app has been uninstalled.
+
+        // Create the storage directory if it does not exist
+        if (! mediaStorageDir.exists()){
+            if (! mediaStorageDir.mkdirs()){
+                return null;
+            }
+        }
+
+        // Create a media file name
+        File mediaFile = new File(mediaStorageDir.getPath() + File.separator + "image.jpg" );
+
+        return mediaFile;
+    }
+
+    public void captureImageFromCamera( View view) {
+        Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
+        Uri fileUri = getOutputMediaFileUri(); // create a file to save the image
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri); // set the image file name
+
+        startActivityForResult(intent, TAKE_PICTURE);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode != Activity.RESULT_OK)
+            return;
+
+        String imageFilePath = null;
+
+        switch (requestCode) {
+            case TAKE_PICTURE:
+                imageFilePath = getOutputMediaFileUri().getPath();
+                break;
+            case SELECT_FILE: {
+                Uri imageUri = data.getData();
+
+                String[] projection = { MediaStore.Images.Media.DATA };
+                Cursor cur = getContentResolver().query(imageUri, projection, null, null, null);
+                cur.moveToFirst();
+                imageFilePath = cur.getString(cur.getColumnIndex(MediaStore.Images.Media.DATA));
+            }
+            break;
+        }
+
+        //Remove output file
+        deleteFile(resultUrl);
+
+        Intent results = new Intent( this, ResultsActivity.class);
+        results.putExtra("IMAGE_PATH", imageFilePath);
+        results.putExtra("RESULT_PATH", resultUrl);
+        startActivity(results);
     }
 
     /**
@@ -138,16 +223,14 @@ public class MainActivity extends AppCompatActivity {
             switch (position) {
                 case 0:
                     favFrag = (ListFragment.FavFragment) createdFragment;
-                    if(allFrag!=null)
-                    {
+                    if (allFrag != null) {
                         favFrag.setOtherFrag(allFrag);
                         allFrag.setOtherFrag(favFrag);
                     }
                     break;
                 case 1:
                     allFrag = (ListFragment.AllFragment) createdFragment;
-                    if(favFrag!=null)
-                    {
+                    if (favFrag != null) {
                         allFrag.setOtherFrag(favFrag);
                         favFrag.setOtherFrag(allFrag);
                     }
@@ -156,4 +239,5 @@ public class MainActivity extends AppCompatActivity {
             return createdFragment;
         }
     }
+
 }
