@@ -2,6 +2,7 @@ package com.example.gokhan.papurrless;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -10,6 +11,7 @@ import android.provider.MediaStore;
 import android.support.design.widget.TabLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
@@ -71,11 +73,27 @@ public class MainActivity extends AppCompatActivity {
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
 
+        final CharSequence opts[] = new CharSequence[] {"Camera", "Storage"};
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Select image from");
+        builder.setItems(opts, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch(which){
+                    case 0:
+                        captureImageFromCamera();
+                    break;
+                    case 1:
+                        captureImageFromSdCard();
+                    break;
+                }
+            }
+        });
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                captureImageFromSdCard(view);
+                builder.show();
             }
         });
 
@@ -104,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
-    public void captureImageFromSdCard( View view ) {
+    public void captureImageFromSdCard( ) {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("image/*");
 
@@ -138,7 +156,7 @@ public class MainActivity extends AppCompatActivity {
         return mediaFile;
     }
 
-    public void captureImageFromCamera( View view) {
+    public void captureImageFromCamera() {
         Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
         Uri fileUri = getOutputMediaFileUri(); // create a file to save the image
         intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri); // set the image file name
