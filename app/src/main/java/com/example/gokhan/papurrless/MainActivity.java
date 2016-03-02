@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Environment;
@@ -55,10 +56,15 @@ public class MainActivity extends AppCompatActivity {
 
     private String resultUrl = "result.txt";
 
+    private boolean premiumEnabled = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        SharedPreferences sharedPref = getSharedPreferences(getString(R.string.premiumEnabled_key), Context.MODE_PRIVATE);
+        premiumEnabled = sharedPref.getBoolean(getString(R.string.premiumEnabled), false);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -116,7 +122,9 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_login) {
+            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+            startActivity(intent);
             return true;
         }
 
@@ -210,9 +218,9 @@ public class MainActivity extends AppCompatActivity {
         public Fragment getItem(int position) {
             switch (position) {
                 case 0:
-                    return ListFragment.FavFragment.newInstance(position + 1);
+                    return ListFragment.FavFragment.newInstance(position + 1, premiumEnabled);
                 case 1:
-                    return ListFragment.AllFragment.newInstance(position + 1);
+                    return ListFragment.AllFragment.newInstance(position + 1, premiumEnabled);
             }
             return null;
         }
