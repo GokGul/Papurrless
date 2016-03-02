@@ -1,5 +1,7 @@
 package com.example.gokhan.papurrless;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -39,6 +41,12 @@ public class ListFragment extends Fragment{
      * fragment.
      */
     private static final String ARG_SECTION_NUMBER = "section_number";
+
+    //maximum number of elements in a list when premium isn't enabled
+    private static final int MAX_FAV_ELEMENTS = 5;
+    private static final int MAX_ALL_ELEMENTS = 12;
+
+    private static boolean premiumEnabled = false;
 
     public ListFragment() {
     }
@@ -487,7 +495,8 @@ public class ListFragment extends Fragment{
 
     //This fragment holds the favourite cards
     public static class FavFragment extends ListFragment {
-        public static ListFragment newInstance(int sectionNumber) {
+        public static ListFragment newInstance(int sectionNumber, boolean premium) {
+            premiumEnabled = premium;
             ListFragment fragment = new FavFragment();
             Bundle args = new Bundle();
             args.putInt(ARG_SECTION_NUMBER, sectionNumber);
@@ -515,8 +524,12 @@ public class ListFragment extends Fragment{
             rv.addOnScrollListener(new EndlessRecyclerViewScrollListener(llm) {
                 @Override
                 public void onLoadMore(int page, int totalItemsCount) {
-                    // fetch data asynchronously here
-                    loadMore(page);
+                    //limits the amounts of elements that can be loaded if user is not premium
+                    if(premiumEnabled || totalItemsCount<MAX_FAV_ELEMENTS)
+                    {
+                        // fetch data asynchronously here
+                        loadMore(page);
+                    }
                 }
             });
             return rootView;
@@ -541,7 +554,8 @@ public class ListFragment extends Fragment{
     //This fragment holds all cards
     public static class AllFragment extends ListFragment {
 
-        public static ListFragment newInstance(int sectionNumber) {
+        public static ListFragment newInstance(int sectionNumber, boolean premium) {
+            premiumEnabled = premium;
             ListFragment fragment = new AllFragment();
             Bundle args = new Bundle();
             args.putInt(ARG_SECTION_NUMBER, sectionNumber);
@@ -572,8 +586,12 @@ public class ListFragment extends Fragment{
             rv.addOnScrollListener(new EndlessRecyclerViewScrollListener(llm) {
                 @Override
                 public void onLoadMore(int page, int totalItemsCount) {
-                    // fetch data asynchronously here
-                    loadMore(page);
+                    //limits the amounts of elements that can be loaded if user is not premium
+                    if(premiumEnabled || totalItemsCount<MAX_ALL_ELEMENTS)
+                    {
+                        // fetch data asynchronously here
+                        loadMore(page);
+                    }
                 }
             });
             return rootView;
