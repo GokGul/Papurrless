@@ -31,6 +31,7 @@
             android:label="@string/title_activity_results" />
         <activity
             android:name=".MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
             android:parentActivityName=".MainActivity"></activity>
 
         <meta-data
@@ -40,7 +41,9 @@
             android:name="com.parse.CLIENT_KEY"
             android:value="gnHTt4uOZBs37UOhVGMI4tMiI4CB2zXMHzQHS2XK" />
 
-        <activity android:name=".RegisterActivity"></activity>
+        <activity
+            android:name=".RegisterActivity"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>
