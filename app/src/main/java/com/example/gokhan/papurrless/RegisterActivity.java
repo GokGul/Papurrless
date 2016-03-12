@@ -51,6 +51,11 @@ public class RegisterActivity extends AppCompatActivity {
         }
     }
 
+    public void login(View view){
+        Intent login = new Intent(RegisterActivity.this, LoginActivity.class);
+        startActivity(login);
+    }
+
     public void initViews(){
         username = (EditText) findViewById(R.id.txt_username);
         password = (EditText) findViewById(R.id.txt_password);

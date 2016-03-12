@@ -70,6 +70,7 @@
         android:id="@+id/btn_back"
         android:layout_below="@+id/btn_register"
         android:layout_toRightOf="@+id/lbl_back"
-        android:layout_toEndOf="@+id/lbl_back" />
+        android:layout_toEndOf="@+id/lbl_back"
+        android:onClick="login"/>
 
 </RelativeLayout>
