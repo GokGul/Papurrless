@@ -9,49 +9,48 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.CheckBox;
+import android.widget.EditText;
+import android.widget.Toast;
+
+import com.parse.LogInCallback;
+import com.parse.ParseException;
+import com.parse.ParseUser;
 
 public class LoginActivity extends AppCompatActivity {
 
-    private boolean premiumEnabled = false;
-    private SharedPreferences.Editor editor;
-    private CheckBox checkBox;
+    EditText username;
+    EditText password;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        SharedPreferences sharedPref = getSharedPreferences(getString(R.string.premiumEnabled_key), Context.MODE_PRIVATE);
-        editor = sharedPref.edit();
-        premiumEnabled = sharedPref.getBoolean(getString(R.string.premiumEnabled), false);
-
-        checkBox = (CheckBox) findViewById(R.id.checkBox);
-        checkBox.setChecked(premiumEnabled);
-
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        initViews();
     }
 
+    public void loginUser(View view){
+        String user =  username.getText().toString();
+        String pwd =  password.getText().toString();
 
-    public void onCheckboxClicked(View view) {
-        boolean checked = ((CheckBox) view).isChecked();
-
-        // Check which checkbox was clicked
-        switch(view.getId()) {
-            case R.id.checkBox:
-                editor.putBoolean(getString(R.string.premiumEnabled), checked);
-                editor.commit();
-                break;
-        }
-
+        ParseUser.logInInBackground(user, pwd, new LogInCallback() {
+            public void done(ParseUser user, ParseException e) {
+                if (user != null) {
+                    Intent main = new Intent(LoginActivity.this, MainActivity.class);
+                    startActivity(main);
+                } else {
+                    Toast.makeText(LoginActivity.this, "Login failed..", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            // Respond to the action bar's Up/Home button
-            case android.R.id.home:
-                NavUtils.navigateUpFromSameTask(this);
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
+    public void register(View view){
+        Intent register = new Intent(LoginActivity.this, RegisterActivity.class);
+        startActivity(register);
+    }
+
+    public void initViews(){
+        username = (EditText) findViewById(R.id.txt_username);
+        password = (EditText) findViewById(R.id.txt_password);
     }
 }
