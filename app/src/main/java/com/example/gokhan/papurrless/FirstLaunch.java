@@ -1,6 +1,8 @@
 package com.example.gokhan.papurrless;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -15,6 +17,17 @@ public class FirstLaunch extends AppCompatActivity {
 
         //Hide actionbar
         //getSupportActionBar().hide();
+
+        SharedPreferences pref = getSharedPreferences("ActivityPREF", Context.MODE_PRIVATE);
+        if(pref.getBoolean("activity_executed", false)){
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
+            finish();
+        } else {
+            SharedPreferences.Editor ed = pref.edit();
+            ed.putBoolean("activity_executed", true);
+            ed.commit();
+        }
     }
 
     public void skipLogin(View view){
