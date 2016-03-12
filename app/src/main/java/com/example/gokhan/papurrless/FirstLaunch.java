@@ -1,7 +1,9 @@
 package com.example.gokhan.papurrless;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
 import android.view.Window;
 
 public class FirstLaunch extends AppCompatActivity {
@@ -12,7 +14,17 @@ public class FirstLaunch extends AppCompatActivity {
         setContentView(R.layout.activity_first_launch);
 
         //Hide actionbar
-        getSupportActionBar().hide();
+        //getSupportActionBar().hide();
+    }
+
+    public void skipLogin(View view){
+        Intent skipLogin = new Intent(FirstLaunch.this, MainActivity.class);
+        startActivity(skipLogin);
+    }
+
+    public void Login(View view){
+        Intent Login = new Intent(FirstLaunch.this, LoginActivity.class);
+        startActivity(Login);
     }
 }
 
