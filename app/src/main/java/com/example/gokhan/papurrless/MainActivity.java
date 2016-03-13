@@ -38,6 +38,7 @@ import java.io.File;
 
 public class MainActivity extends AppCompatActivity {
     private static String tag = "Main Activity";
+    private SharedPreferences.Editor editor;
 
     /**
      * The {@link PagerAdapter} that will provide
@@ -76,6 +77,7 @@ public class MainActivity extends AppCompatActivity {
 
         SharedPreferences sharedPref = getSharedPreferences(getString(R.string.premiumEnabled_key), Context.MODE_PRIVATE);
         premiumEnabled = sharedPref.getBoolean(getString(R.string.premiumEnabled), false);
+        editor = sharedPref.edit();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -89,6 +91,7 @@ public class MainActivity extends AppCompatActivity {
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
+
 
         final CharSequence opts[] = new CharSequence[]{"Camera", "Storage"};
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -125,6 +128,13 @@ public class MainActivity extends AppCompatActivity {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
 
+        MenuItem loginMenuItem = menu.findItem(R.id.action_login);
+
+        if(premiumEnabled)
+        {
+            loginMenuItem.setTitle(R.string.action_log_out);
+        }
+
         return true;
     }
 
@@ -137,12 +147,31 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_login) {
-            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-            startActivity(intent);
+            if(!premiumEnabled)
+                logIn();
+            else
+                logOut();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void logIn()
+    {
+        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+        startActivity(intent);
+    }
+
+    public void logOut()
+    {
+        premiumEnabled = false;
+        editor.putBoolean(getString(R.string.premiumEnabled), false);
+        editor.commit();
+
+        Toast.makeText(this, R.string.toast_logged_out, Toast.LENGTH_SHORT).show();
+
+        this.recreate();
     }
 
     public void captureImageFromSdCard() {

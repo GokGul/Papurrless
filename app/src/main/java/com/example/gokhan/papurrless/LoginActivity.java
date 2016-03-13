@@ -21,12 +21,19 @@ public class LoginActivity extends AppCompatActivity {
     EditText username;
     EditText password;
 
+    private SharedPreferences.Editor editor;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        SharedPreferences sharedPref = getSharedPreferences(getString(R.string.premiumEnabled_key), Context.MODE_PRIVATE);
+        editor = sharedPref.edit();
+
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle(R.string.action_login);
+
         initViews();
     }
 
@@ -38,8 +45,12 @@ public class LoginActivity extends AppCompatActivity {
             public void done(ParseUser user, ParseException e) {
                 if (user != null) {
                     Intent main = new Intent(LoginActivity.this, MainActivity.class);
+                    editor.putBoolean(getString(R.string.premiumEnabled), true);
+                    editor.commit();
                     startActivity(main);
                 } else {
+                    editor.putBoolean(getString(R.string.premiumEnabled), false);
+                    editor.commit();
                     Toast.makeText(LoginActivity.this, R.string.error_login_failed, Toast.LENGTH_SHORT).show();
                 }
             }

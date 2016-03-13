@@ -43,8 +43,8 @@ public class ListFragment extends Fragment{
     private static final String ARG_SECTION_NUMBER = "section_number";
 
     //maximum number of elements in a list when premium isn't enabled
-    private static final int MAX_FAV_ELEMENTS = 5;
-    private static final int MAX_ALL_ELEMENTS = 12;
+    private static final int MAX_FAV_ELEMENTS = 4;
+    private static final int MAX_ALL_ELEMENTS = 10;
 
     private static boolean premiumEnabled = false;
 
@@ -540,7 +540,7 @@ public class ListFragment extends Fragment{
             List<ReceiptContent> moreReceipts;
             moreReceipts = new ArrayList<>();
             //add a certain number of receipts (use page to determine the range, or I guess the key would be better
-            if(offset<13) //this isn't relevant, just a useful limiter
+            if(offset<3) //this isn't relevant, just a useful limiter for the sake of testing longer lists
             {
                 moreReceipts.add(new ReceiptContent("DerpMarkt", "01-01-2009", "2x COCA-COLA\n2x APPELS\n1x DURR\n1x CUTOFF", "€2,33\n€3,75\n€11,22\n€13,77", "€100,00", true, 12));
             }
@@ -602,9 +602,9 @@ public class ListFragment extends Fragment{
             List<ReceiptContent> moreReceipts;
             moreReceipts = new ArrayList<>();
             //add a certain number of receipts (use page to determine the range, or I guess the key would be better
-            if(offset<13) //this isn't relevant, just a useful limiter
+            if(offset<13) //this isn't relevant, just a useful limiter for the sake of testing longer lists
             {
-                moreReceipts.add(new ReceiptContent("DerpMarkt", "01-01-2009", "2x COCA-COLA\n2x APPELS\n1x DURR\n1x CUTOFF", "€2,33\n€3,75\n€11,22\n€13,77", "€100,00", true, 12));
+                moreReceipts.add(new ReceiptContent("DerpMarkt", "01-01-2009", "2x COCA-COLA\n2x APPELS\n1x DURR\n1x CUTOFF", "€2,33\n€3,75\n€11,22\n€13,77", "€100,00", false, 12));
             }
             //normally you'd be pulling from the database at this point
             adapter.addReceipts(moreReceipts);

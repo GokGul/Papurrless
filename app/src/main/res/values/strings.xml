@@ -38,4 +38,6 @@
     <string name="toast_account_created">Account created!</string>
     <string name="error_generic_try_again">Something went wrong, please try again..</string>
     <string name="error_password_no_match">Passwords don\'t match.</string>
+    <string name="action_log_out">Log out</string>
+    <string name="toast_logged_out">Logged out</string>
 </resources>
