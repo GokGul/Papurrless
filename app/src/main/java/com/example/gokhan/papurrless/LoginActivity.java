@@ -25,6 +25,8 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle(R.string.action_login);
         initViews();
     }
 
@@ -38,7 +40,7 @@ public class LoginActivity extends AppCompatActivity {
                     Intent main = new Intent(LoginActivity.this, MainActivity.class);
                     startActivity(main);
                 } else {
-                    Toast.makeText(LoginActivity.this, "Login failed..", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, R.string.error_login_failed, Toast.LENGTH_SHORT).show();
                 }
             }
         });

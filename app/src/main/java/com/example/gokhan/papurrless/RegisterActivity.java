@@ -21,6 +21,9 @@ public class RegisterActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle(R.string.action_register);
         initViews();
     }
 
@@ -37,17 +40,17 @@ public class RegisterActivity extends AppCompatActivity {
             user.signUpInBackground(new SignUpCallback() {
                 public void done(ParseException e) {
                     if (e == null) {
-                        Toast.makeText(RegisterActivity.this, "Account created!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(RegisterActivity.this, R.string.toast_account_created, Toast.LENGTH_SHORT).show();
 
                         Intent login = new Intent(RegisterActivity.this, LoginActivity.class);
                         startActivity(login);
                     } else {
-                        Toast.makeText(RegisterActivity.this, "Something went wrong, please try again..", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(RegisterActivity.this, R.string.error_generic_try_again, Toast.LENGTH_SHORT).show();
                     }
                 }
             });
         }else{
-            Toast.makeText(RegisterActivity.this, "Passwords don't match.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(RegisterActivity.this, R.string.error_password_no_match, Toast.LENGTH_SHORT).show();
         }
     }
 

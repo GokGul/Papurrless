@@ -22,4 +22,20 @@
     <string name="title_activity_results"> Result</string>
     <string name="premiumEnabled_key">com.example.papurrless.PREMIUMENABLED_KEY</string>
     <string name="premiumEnabled" />
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="join_us">Haven\'t joined us yet?</string>
+    <string name="action_register">Register</string>
+    <string name="thanks_for_using_papurrless">Thanks for using Papurrless!</string>
+    <string name="tagline">Designed to render receipts obsolete</string>
+    <string name="read_first">Hold on, read this first :)</string>
+    <string name="user_benefits_description">Registered users can upload their receipts to our database to ensure that you won\'t lose your receipts. In the end, it\'s your call though!</string>
+    <string name="action_skip_login">Skip login</string>
+    <string name="hint_retype_password">Retype Password</string>
+    <string name="dialog_change_your_mind">Change your mind?</string>
+    <string name="action_back">Go back</string>
+    <string name="error_login_failed">Login failed..</string>
+    <string name="toast_account_created">Account created!</string>
+    <string name="error_generic_try_again">Something went wrong, please try again..</string>
+    <string name="error_password_no_match">Passwords don\'t match.</string>
 </resources>

@@ -3,6 +3,7 @@
     <color name="colorPrimary">#8bc34a</color>
     <color name="colorPrimaryDark">#689f38</color>
     <color name="colorAccent">#81d4fa</color>
+    <color name="colorContrastBackground">#eeeeee</color>
     <color name="AH">#00A0E2</color>
     <color name="Jumbo">#FFC704</color>
     <color name="Aldi">#001E78</color>

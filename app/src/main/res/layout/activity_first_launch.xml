@@ -9,13 +9,13 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingBottom="@dimen/activity_vertical_margin"
     tools:context="com.example.gokhan.papurrless.FirstLaunch"
-    android:background="#eeeeee">
+    android:background="@color/colorContrastBackground">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Thanks for using Papurrless!"
+        android:text="@string/thanks_for_using_papurrless"
         android:id="@+id/lbl_thnx"
         android:layout_below="@+id/imageView4"
         android:layout_marginTop="20dp"
@@ -25,7 +25,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Designed to render receipts obsolete"
+        android:text="@string/tagline"
         android:id="@+id/lbl_slogan"
         android:layout_below="@+id/lbl_thnx"
         android:layout_centerHorizontal="true" />
@@ -43,7 +43,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Hold on, read this first :)"
+        android:text="@string/read_first"
         android:id="@+id/lbl_readThis"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true"
@@ -54,7 +54,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Registered users can upload their receipts to our database to ensure that you won&apos;t lose your receipts. In the end, it&apos;s your call though!"
+        android:text="@string/user_benefits_description"
         android:id="@+id/textView"
         android:layout_below="@+id/lbl_readThis"
         android:layout_centerHorizontal="true"
@@ -63,7 +63,7 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Login"
+        android:text="@string/action_login"
         android:id="@+id/btn_login"
         android:onClick="Login"
         android:layout_below="@+id/textView"
@@ -76,7 +76,7 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Skip login"
+        android:text="@string/action_skip_login"
         android:id="@+id/btn_skipLogin"
         android:onClick="skipLogin"
         android:layout_below="@+id/btn_login"

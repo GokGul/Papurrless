@@ -9,13 +9,13 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.example.gokhan.papurrless.LoginActivity"
     android:theme="@style/AppTheme.AppBarOverlay"
-    android:background="#eeeeee">
+    android:background="@color/colorContrastBackground">
 
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/txt_username"
-        android:hint="Username"
+        android:hint="@string/username"
         android:layout_below="@+id/imageView2"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
@@ -28,7 +28,7 @@
         android:ems="10"
         android:id="@+id/txt_password"
         android:layout_alignParentStart="true"
-        android:hint="Password"
+        android:hint="@string/password"
         android:layout_below="@+id/txt_username"
         android:layout_alignParentLeft="true"
         android:layout_marginTop="5dp"/>
@@ -36,9 +36,9 @@
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Login"
+        android:text="@string/action_login"
         android:id="@+id/btn_login"
-        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
         android:onClick="loginUser"
         android:layout_below="@+id/txt_password"
         android:layout_alignParentLeft="true"
@@ -48,9 +48,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Haven&apos;t joined us yet?"
+        android:text="@string/join_us"
         android:id="@+id/lbl_join"
         android:layout_below="@+id/btn_login"
+        android:layout_alignParentStart="true"
         android:layout_alignParentLeft="true"
         android:layout_marginTop="5dp"/>
 
@@ -58,7 +59,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Register"
+        android:text="@string/action_register"
         android:id="@+id/txt_register"
         android:textColor="@color/colorPrimary"
         android:onClick="register"
@@ -66,6 +67,7 @@
         android:layout_toRightOf="@+id/lbl_join"
         android:layout_toEndOf="@+id/lbl_join"
         android:layout_marginTop="5dp"
+        android:layout_marginStart="5dp"
         android:layout_marginLeft="5dp"/>
 
     <ImageView

@@ -12,6 +12,8 @@ import android.provider.MediaStore;
 import android.support.design.widget.TabLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.view.PagerAdapter;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -28,18 +30,22 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.google.android.gms.appindexing.Action;
+import com.google.android.gms.appindexing.AppIndex;
+import com.google.android.gms.common.api.GoogleApiClient;
+
 import java.io.File;
 
 public class MainActivity extends AppCompatActivity {
     private static String tag = "Main Activity";
 
     /**
-     * The {@link android.support.v4.view.PagerAdapter} that will provide
+     * The {@link PagerAdapter} that will provide
      * fragments for each of the sections. We use a
      * {@link FragmentPagerAdapter} derivative, which will keep every
      * loaded fragment in memory. If this becomes too memory intensive, it
      * may be best to switch to a
-     * {@link android.support.v4.app.FragmentStatePagerAdapter}.
+     * {@link FragmentStatePagerAdapter}.
      */
     private SectionsPagerAdapter mSectionsPagerAdapter;
 
@@ -57,6 +63,11 @@ public class MainActivity extends AppCompatActivity {
     private String resultUrl = "result.txt";
 
     private boolean premiumEnabled = false;
+    /**
+     * ATTENTION: This was auto-generated to implement the App Indexing API.
+     * See https://g.co/AppIndexing/AndroidStudio for more information.
+     */
+    private GoogleApiClient client;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,19 +90,19 @@ public class MainActivity extends AppCompatActivity {
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
 
-        final CharSequence opts[] = new CharSequence[] {"Camera", "Storage"};
+        final CharSequence opts[] = new CharSequence[]{"Camera", "Storage"};
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Select image from");
         builder.setItems(opts, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                switch(which){
+                switch (which) {
                     case 0:
                         captureImageFromCamera();
-                    break;
+                        break;
                     case 1:
                         captureImageFromSdCard();
-                    break;
+                        break;
                 }
             }
         });
@@ -103,6 +114,9 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
 
@@ -130,19 +144,22 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
-    public void captureImageFromSdCard( ) {
+
+    public void captureImageFromSdCard() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("image/*");
 
         startActivityForResult(intent, SELECT_FILE);
     }
 
-    private static Uri getOutputMediaFileUri(){
+    private static Uri getOutputMediaFileUri() {
         return Uri.fromFile(getOutputMediaFile());
     }
 
-    /** Create a File for saving an image or video */
-    private static File getOutputMediaFile(){
+    /**
+     * Create a File for saving an image or video
+     */
+    private static File getOutputMediaFile() {
         // To be safe, you should check that the SDCard is mounted
         // using Environment.getExternalStorageState() before doing this.
 
@@ -152,14 +169,14 @@ public class MainActivity extends AppCompatActivity {
         // between applications and persist after your app has been uninstalled.
 
         // Create the storage directory if it does not exist
-        if (! mediaStorageDir.exists()){
-            if (! mediaStorageDir.mkdirs()){
+        if (!mediaStorageDir.exists()) {
+            if (!mediaStorageDir.mkdirs()) {
                 return null;
             }
         }
 
         // Create a media file name
-        File mediaFile = new File(mediaStorageDir.getPath() + File.separator + "image.jpg" );
+        File mediaFile = new File(mediaStorageDir.getPath() + File.separator + "image.jpg");
 
         return mediaFile;
     }
@@ -187,7 +204,7 @@ public class MainActivity extends AppCompatActivity {
             case SELECT_FILE: {
                 Uri imageUri = data.getData();
 
-                String[] projection = { MediaStore.Images.Media.DATA };
+                String[] projection = {MediaStore.Images.Media.DATA};
                 Cursor cur = getContentResolver().query(imageUri, projection, null, null, null);
                 cur.moveToFirst();
                 imageFilePath = cur.getString(cur.getColumnIndex(MediaStore.Images.Media.DATA));
@@ -198,10 +215,50 @@ public class MainActivity extends AppCompatActivity {
         //Remove output file
         deleteFile(resultUrl);
 
-        Intent results = new Intent( this, ResultsActivity.class);
+        Intent results = new Intent(this, ResultsActivity.class);
         results.putExtra("IMAGE_PATH", imageFilePath);
         results.putExtra("RESULT_PATH", resultUrl);
         startActivity(results);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client.connect();
+        Action viewAction = Action.newAction(
+                Action.TYPE_VIEW, // TODO: choose an action type.
+                "Main Page", // TODO: Define a title for the content shown.
+                // TODO: If you have web page content that matches this app activity's content,
+                // make sure this auto-generated web page URL is correct.
+                // Otherwise, set the URL to null.
+                Uri.parse("http://host/path"),
+                // TODO: Make sure this auto-generated app deep link URI is correct.
+                Uri.parse("android-app://com.example.gokhan.papurrless/http/host/path")
+        );
+        AppIndex.AppIndexApi.start(client, viewAction);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        Action viewAction = Action.newAction(
+                Action.TYPE_VIEW, // TODO: choose an action type.
+                "Main Page", // TODO: Define a title for the content shown.
+                // TODO: If you have web page content that matches this app activity's content,
+                // make sure this auto-generated web page URL is correct.
+                // Otherwise, set the URL to null.
+                Uri.parse("http://host/path"),
+                // TODO: Make sure this auto-generated app deep link URI is correct.
+                Uri.parse("android-app://com.example.gokhan.papurrless/http/host/path")
+        );
+        AppIndex.AppIndexApi.end(client, viewAction);
+        client.disconnect();
     }
 
     /**
