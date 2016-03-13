@@ -1,6 +1,7 @@
 package com.example.gokhan.papurrless;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -249,6 +250,27 @@ public class ListFragment extends Fragment{
             super.onAttachedToRecyclerView(recyclerView);
         }
 
+        public class PremiumViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+            CardView cv;
+
+            PremiumViewHolder(View itemView) {
+                super(itemView);
+                cv = (CardView)itemView.findViewById(R.id.premium_card);
+                itemView.setOnClickListener(this);
+            }
+
+            @Override
+            public void onClick(View v)
+            {
+                //if else because cases require constants
+                if (v.getId() == itemView.getId()){
+                    Intent intent = new Intent(getActivity(), LoginActivity.class);
+                    startActivity(intent);
+                }
+            }
+
+        }
+
         public class ReceiptViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
             CardView cv;
             Toolbar toolbar;
@@ -308,7 +330,6 @@ public class ListFragment extends Fragment{
 
             public void favReceipt(int position)
             {
-                Toast.makeText(itemView.getContext(), "FAVORITE", Toast.LENGTH_SHORT).show();
                 if(isFavoriteList)  //removes from fav list, changes checkbox in all list
                 {
                     favOtherList(receipts.get(position).receiptId, position, isFavoriteList);
@@ -463,8 +484,15 @@ public class ListFragment extends Fragment{
         else
         {
             RVAdapter otherAdapter = otherFrag.adapter;
-            otherAdapter.receipts.add(0, adapter.receipts.get(currentPosition));
-            otherAdapter.notifyDataSetChanged();
+            if(otherAdapter.getItemCount() >= MAX_FAV_ELEMENTS)
+            {
+                Toast.makeText(getContext(), R.string.error_too_many_favorites, Toast.LENGTH_SHORT).show();
+            }
+            else
+            {
+                otherAdapter.receipts.add(0, adapter.receipts.get(currentPosition));
+                otherAdapter.notifyDataSetChanged();
+            }
         }
     }
 
@@ -525,8 +553,7 @@ public class ListFragment extends Fragment{
                 @Override
                 public void onLoadMore(int page, int totalItemsCount) {
                     //limits the amounts of elements that can be loaded if user is not premium
-                    if(premiumEnabled || totalItemsCount<MAX_FAV_ELEMENTS)
-                    {
+                    if (premiumEnabled || totalItemsCount < MAX_FAV_ELEMENTS) {
                         // fetch data asynchronously here
                         loadMore(page);
                     }
@@ -587,8 +614,7 @@ public class ListFragment extends Fragment{
                 @Override
                 public void onLoadMore(int page, int totalItemsCount) {
                     //limits the amounts of elements that can be loaded if user is not premium
-                    if(premiumEnabled || totalItemsCount<MAX_ALL_ELEMENTS)
-                    {
+                    if (premiumEnabled || totalItemsCount < MAX_ALL_ELEMENTS) {
                         // fetch data asynchronously here
                         loadMore(page);
                     }

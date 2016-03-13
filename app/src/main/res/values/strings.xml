@@ -40,4 +40,6 @@
     <string name="error_password_no_match">Passwords don\'t match.</string>
     <string name="action_log_out">Log out</string>
     <string name="toast_logged_out">Logged out</string>
+    <string name="error_too_many_favorites">Too many favorites, get Premium</string>
+    <string name="card_get_premium">Want to see more receipts?\nGet Premium.</string>
 </resources>
