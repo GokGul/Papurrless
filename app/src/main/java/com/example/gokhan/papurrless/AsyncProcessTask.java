@@ -15,11 +15,11 @@ import java.io.FileOutputStream;
 public class AsyncProcessTask extends AsyncTask<String, String, Boolean> {
 
     private ProgressDialog dialog;
-    private ResultsActivity activity;
+    private MainActivity activity;
 
-    public AsyncProcessTask(ResultsActivity activty){
-        this.activity = activty;
-        dialog = new ProgressDialog(activty);
+    public AsyncProcessTask(MainActivity activity){
+        this.activity = activity;
+        dialog = new ProgressDialog(activity);
     }
 
     protected void onPreExecute(){
@@ -106,8 +106,7 @@ public class AsyncProcessTask extends AsyncTask<String, String, Boolean> {
         }
         catch(Exception e){
             final String message = "Error: " + e.getMessage();
-            publishProgress( message);
-            activity.displayMessage(message);
+            publishProgress(message);
             return false;
         }
     }

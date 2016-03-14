@@ -34,7 +34,16 @@ import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
     private static String tag = "Main Activity";
@@ -59,9 +68,8 @@ public class MainActivity extends AppCompatActivity {
 
     private final int TAKE_PICTURE = 0;
     private final int SELECT_FILE = 1;
-    public static final int MEDIA_TYPE_IMAGE = 1;
 
-    private String resultUrl = "result.txt";
+    private String outputPath = "result.txt";
 
     private boolean premiumEnabled = false;
     /**
@@ -121,7 +129,6 @@ public class MainActivity extends AppCompatActivity {
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -230,24 +237,145 @@ public class MainActivity extends AppCompatActivity {
             case TAKE_PICTURE:
                 imageFilePath = getOutputMediaFileUri().getPath();
                 break;
-            case SELECT_FILE: {
+            case SELECT_FILE:
                 Uri imageUri = data.getData();
-
-                String[] projection = {MediaStore.Images.Media.DATA};
+                String[] projection = { MediaStore.Images.Media.DATA };
                 Cursor cur = getContentResolver().query(imageUri, projection, null, null, null);
                 cur.moveToFirst();
                 imageFilePath = cur.getString(cur.getColumnIndex(MediaStore.Images.Media.DATA));
-            }
-            break;
+                break;
         }
 
-        //Remove output file
-        deleteFile(resultUrl);
+        String imageUrl = imageFilePath;
 
-        Intent results = new Intent(this, ResultsActivity.class);
-        results.putExtra("IMAGE_PATH", imageFilePath);
-        results.putExtra("RESULT_PATH", resultUrl);
-        startActivity(results);
+        new AsyncProcessTask(this).execute(imageUrl, outputPath);
+    }
+
+    public void updateResults(Boolean success) {
+        if (!success)
+            return;
+        try {
+            StringBuffer contents = new StringBuffer();
+            //forgot why i'm using a hashmap instead of list... i will phix l8er
+            List<String> receiptLines = new ArrayList();
+            FileInputStream fis = openFileInput(outputPath);
+            try {
+                Reader reader = new InputStreamReader(fis, "UTF-8");
+                BufferedReader bufReader = new BufferedReader(reader);
+                String text = null;
+
+                while ((text = bufReader.readLine()) != null) {
+                    contents.append(text).append(System.getProperty("line.separator"));
+
+                    //remove all spaces
+                    text = text.replaceAll("\\s+", "");
+
+                    //ignore lines that only contain whitespace and no characters
+                    if(text.matches(".*\\w.*")) {
+                        //this might seem redundant, but somehow the text variable still has leading and trailing spaces.
+                        text = text.trim();
+                        receiptLines.add(text);
+                    }
+                }
+            } finally {
+                fis.close();
+            }
+            processReceipt(receiptLines);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public void processReceipt(List<String> lines){
+
+        String groceryStore = "";
+        String products = "";
+        String prices = "";
+        String subtotaal = "";
+
+        boolean isGroceryStore = true;
+        boolean isProduct = false;
+
+        for(String line : lines){
+
+            //
+            String _value = null;
+            if(groceryStore.equals("")) {
+                _value = line.substring(1, 5);
+            }
+            //
+            while(isGroceryStore) {
+                switch (_value) {
+                    case "Albe":
+                        groceryStore = "AH";
+                        isGroceryStore = false;
+                        break;
+                    case "Aibe":
+                        groceryStore = "AH";
+                        isGroceryStore = false;
+                        break;
+                    case "Jumb":
+                        groceryStore = "Jumbo";
+                        isGroceryStore = false;
+                        break;
+                    case "Aldi":
+                        groceryStore = "Aldi";
+                        isGroceryStore = false;
+                        break;
+                    case "Aidi":
+                        groceryStore = "Aldi";
+                        isGroceryStore = false;
+                        break;
+                    case "Dirk":
+                        groceryStore = "Dirk";
+                        isGroceryStore = false;
+                        break;
+                    case "Dink":
+                        groceryStore = "Dirk";
+                        isGroceryStore = false;
+                        break;
+                    default:_value= "";
+                }//switch end
+            }//while(isGroceryStore) end
+
+            //for Albert Heijn receipts only!
+            if(groceryStore.equals("AH")){
+
+                //go to next item in the map if the line matches EUR. on the AH receipts products appear right underneath this line
+                if(line.substring(0, line.length()).equals("EUR")){
+                    isProduct = true;
+                    continue;
+                }
+                while(isProduct) {
+
+                    //removes all digits from string
+                    String _product = line.toString().replaceAll("[^A-Za-z]", "") + "\n";
+                    products += _product;
+
+                    //removes all letters from string
+                    String _price = line.toString().replaceAll("[^\\d,.]+", " ") + "\n";
+                    prices += _price;
+
+                    //For some reason
+                    String _subTotaal = _product.trim();
+
+                    //isProduct gets set to false so that it won't go into the while loop.
+                    //So basically this is the end of the receipt
+                    if (_subTotaal.equals("SUBTOTAAL") || _subTotaal.equals("TOTAAL")) {
+                        subtotaal = _price;
+                        isProduct = false;
+                        break;
+                    }
+                    else{
+                        //break out of the while loop and go to the next iteration
+                        break;
+                    }
+                }
+            }
+        }
+        allFrag.addReceipt(allFrag.new ReceiptContent(groceryStore, "01-01-1000", products, prices, subtotaal, false, 666));
     }
 
     @Override

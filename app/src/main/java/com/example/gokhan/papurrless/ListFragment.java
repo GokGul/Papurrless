@@ -623,6 +623,12 @@ public class ListFragment extends Fragment{
             return rootView;
         }
 
+        public void addReceipt(ReceiptContent newReceipt){
+
+            adapter.receipts.add(0, newReceipt);
+            adapter.notifyDataSetChanged();
+        }
+
         public void loadMore(int offset) {
             int curSize = adapter.getItemCount();
             List<ReceiptContent> moreReceipts;
