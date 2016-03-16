@@ -42,4 +42,5 @@
     <string name="toast_logged_out">Logged out</string>
     <string name="error_too_many_favorites">Too many favorites, get Premium</string>
     <string name="card_get_premium">Want to see more receipts?\nGet Premium.</string>
+    <string name="action_image">Open image</string>
 </resources>

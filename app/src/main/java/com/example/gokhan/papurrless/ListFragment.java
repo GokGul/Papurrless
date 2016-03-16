@@ -280,6 +280,7 @@ public class ListFragment extends Fragment{
             CheckBox favorite;
             ImageButton edit;
             ImageButton delete;
+            ImageButton image;
             FullReceipt fullReceipt;
 
             ReceiptViewHolder(View itemView) {
@@ -292,10 +293,12 @@ public class ListFragment extends Fragment{
                 favorite = (CheckBox)itemView.findViewById(R.id.action_favorite);
                 edit = (ImageButton)itemView.findViewById(R.id.action_edit);
                 delete = (ImageButton)itemView.findViewById(R.id.action_delete);
+                image = (ImageButton)itemView.findViewById(R.id.action_image);
                 itemView.setOnClickListener(this);
                 favorite.setOnClickListener(this);
                 edit.setOnClickListener(this);
                 delete.setOnClickListener(this);
+                image.setOnClickListener(this);
             }
 
             @Override
@@ -310,6 +313,8 @@ public class ListFragment extends Fragment{
                     editReceipt();
                 } else if (v.getId() == delete.getId()){
                     deleteReceipt(getAdapterPosition());
+                } else if (v.getId() == image.getId()){
+                    openImage();
                 }
             }
 
@@ -358,6 +363,12 @@ public class ListFragment extends Fragment{
             {
                 Toast.makeText(itemView.getContext(), "EDIT", Toast.LENGTH_SHORT).show();
                 //start edit activity
+            }
+
+            public void openImage()
+            {
+                Toast.makeText(itemView.getContext(), "OPEN IMAGE", Toast.LENGTH_SHORT).show();
+                //open the original photo
             }
 
             public void deleteReceipt(final int position)
