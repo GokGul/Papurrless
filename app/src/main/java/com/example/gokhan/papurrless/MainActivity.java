@@ -244,6 +244,7 @@ public class MainActivity extends AppCompatActivity {
         switch (requestCode) {
             case TAKE_PICTURE:
                 imageFilePath = getOutputMediaFile().getPath();
+                break;
             case SELECT_FILE:
                 Uri imageUri = data.getData();
                 String[] projection = { MediaStore.Images.Media.DATA };
