@@ -1,12 +1,15 @@
 package com.example.gokhan.papurrless;
 
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.design.widget.TabLayout;
@@ -35,10 +38,14 @@ import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -68,6 +75,7 @@ public class MainActivity extends AppCompatActivity {
 
     private final int TAKE_PICTURE = 0;
     private final int SELECT_FILE = 1;
+    private final int KITKAT_SELECT_FILE = 2;
 
     private String outputPath = "result.txt";
 
@@ -181,13 +189,6 @@ public class MainActivity extends AppCompatActivity {
         this.recreate();
     }
 
-    public void captureImageFromSdCard() {
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType("image/*");
-
-        startActivityForResult(intent, SELECT_FILE);
-    }
-
     private static Uri getOutputMediaFileUri() {
         return Uri.fromFile(getOutputMediaFile());
     }
@@ -217,6 +218,13 @@ public class MainActivity extends AppCompatActivity {
         return mediaFile;
     }
 
+    public void captureImageFromSdCard() {
+            Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            intent.setType("image/*");
+
+            startActivityForResult(intent, SELECT_FILE);
+    }
+
     public void captureImageFromCamera() {
         Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
         Uri fileUri = getOutputMediaFileUri(); // create a file to save the image
@@ -235,8 +243,7 @@ public class MainActivity extends AppCompatActivity {
 
         switch (requestCode) {
             case TAKE_PICTURE:
-                imageFilePath = getOutputMediaFileUri().getPath();
-                break;
+                imageFilePath = getOutputMediaFile().getPath();
             case SELECT_FILE:
                 Uri imageUri = data.getData();
                 String[] projection = { MediaStore.Images.Media.DATA };
@@ -246,9 +253,7 @@ public class MainActivity extends AppCompatActivity {
                 break;
         }
 
-        String imageUrl = imageFilePath;
-
-        new AsyncProcessTask(this).execute(imageUrl, outputPath);
+        new AsyncProcessTask(this).execute(imageFilePath, outputPath);
     }
 
     public void updateResults(Boolean success) {
@@ -256,7 +261,6 @@ public class MainActivity extends AppCompatActivity {
             return;
         try {
             StringBuffer contents = new StringBuffer();
-            //forgot why i'm using a hashmap instead of list... i will phix l8er
             List<String> receiptLines = new ArrayList();
             FileInputStream fis = openFileInput(outputPath);
             try {
@@ -350,15 +354,14 @@ public class MainActivity extends AppCompatActivity {
                 }
                 while(isProduct) {
 
-                    //removes all digits from string
+                    //only keep uppercase and lowercase letters
                     String _product = line.toString().replaceAll("[^A-Za-z]", "") + "\n";
                     products += _product;
 
-                    //removes all letters from string
+                    //retains the digits, dots and commas
                     String _price = line.toString().replaceAll("[^\\d,.]+", " ") + "\n";
                     prices += _price;
 
-                    //For some reason
                     String _subTotaal = _product.trim();
 
                     //isProduct gets set to false so that it won't go into the while loop.
