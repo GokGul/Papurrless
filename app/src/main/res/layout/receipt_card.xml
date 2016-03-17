@@ -148,6 +148,15 @@
                 android:layout_width="48dp"
                 android:layout_gravity="right"
                 android:title="@string/action_delete"/>
+            <android.support.v7.widget.AppCompatImageButton
+                android:id="@+id/action_image"
+                android:src="@drawable/ic_photo_24dp"
+                android:theme="@style/AppTheme"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:layout_height="48dp"
+                android:layout_width="48dp"
+                android:layout_gravity="right"
+                android:title="@string/action_image"/>
 
         </android.support.v7.widget.Toolbar>
 
