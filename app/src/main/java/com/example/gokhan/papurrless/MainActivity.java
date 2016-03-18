@@ -36,6 +36,9 @@ import android.widget.Toast;
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.parse.ParseFile;
+import com.parse.ParseObject;
+import com.parse.ParseUser;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -226,9 +229,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void captureImageFromCamera() {
-        Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
-        Uri fileUri = getOutputMediaFileUri(); // create a file to save the image
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri); // set the image file name
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        //Uri fileUri = getOutputMediaFileUri(); // create a file to save the image
+        //intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri); // set the image file name
 
         startActivityForResult(intent, TAKE_PICTURE);
     }
@@ -243,6 +246,9 @@ public class MainActivity extends AppCompatActivity {
 
         switch (requestCode) {
             case TAKE_PICTURE:
+                if(resultCode == RESULT_OK) {
+                    saveImageToParse(data);
+                }
                 imageFilePath = getOutputMediaFile().getPath();
                 break;
             case SELECT_FILE:
@@ -255,6 +261,29 @@ public class MainActivity extends AppCompatActivity {
         }
 
         new AsyncProcessTask(this).execute(imageFilePath, outputPath);
+    }
+
+    private void saveImageToParse(Intent data) {
+        // Resize photo from camera byte array
+
+        Bitmap mealImage = (Bitmap) data.getExtras().get("data");
+
+
+
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        mealImage.compress(Bitmap.CompressFormat.JPEG, 100, bos);
+
+        byte[] scaledData = bos.toByteArray();
+
+        // Save the scaled image to Parse
+        ParseFile photoFile = new ParseFile("image.jpg", scaledData);
+
+        ParseUser user = ParseUser.getCurrentUser();
+        ParseObject img = new ParseObject("Image");
+        img.put("Image", photoFile);
+        img.put("User", user);
+
+        img.saveInBackground();
     }
 
     public void updateResults(Boolean success) {
