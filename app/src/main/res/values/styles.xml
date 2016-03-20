@@ -13,7 +13,21 @@
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"
+        />
+
+    <style name="LoginTheme" parent="AppTheme.AppBarOverlay">
+        <item name="android:textColorHint">#757575</item>
+        <item name="colorControlActivated">#616161</item>
+        <item name="editTextStyle">@style/eTStyle</item>
+        <item name="colorControlNormal">#757575</item>
+        <item name="android:textColorSecondary">#FF757575</item>
+        <item name="android:background">@color/colorContrastBackground</item>item
+    </style>
+
+    <style name="eTStyle" parent="@android:style/Widget.EditText">
+        <item name="android:textColor">#616161</item>
+    </style>
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
