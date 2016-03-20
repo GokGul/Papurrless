@@ -94,6 +94,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean premiumEnabled = false;
 
     ParseUser user = ParseUser.getCurrentUser();
+    ParseObject img;
 
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
@@ -231,7 +232,7 @@ public class MainActivity extends AppCompatActivity {
         // using Environment.getExternalStorageState() before doing this.
 
         File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES), "Papurrless");
+                Environment.DIRECTORY_PICTURES), "ABBYY Cloud OCR SDK Demo App");
         // This location works best if you want the created images to be shared
         // between applications and persist after your app has been uninstalled.
 
@@ -242,7 +243,6 @@ public class MainActivity extends AppCompatActivity {
 
         // Create a media file name
         File mediaFile = new File(mediaStorageDir.getPath() + File.separator + "image.jpg");
-
         return mediaFile;
     }
 
@@ -268,7 +268,6 @@ public class MainActivity extends AppCompatActivity {
 
                 String dateTime = exitInterface.getAttribute(ExifInterface.TAG_DATETIME);
                 SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy:MM:dd HH:mm:ss");
-                dateTimeFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
                 Date convertedDate = dateTimeFormat.parse(dateTime);
                 formattedDate = new SimpleDateFormat("dd-MM-yyyy").format(convertedDate);
             }
@@ -359,11 +358,15 @@ public class MainActivity extends AppCompatActivity {
         ParseFile photoFile = new ParseFile("image.jpg", scaledData);
 
         ParseUser user = ParseUser.getCurrentUser();
-        ParseObject img = new ParseObject("Image");
+        img = new ParseObject("Image");
         img.put("Image", photoFile);
         img.put("User", user);
 
         img.saveInBackground();
+    }
+
+    private void saveImageToParse(){
+
     }
 
     public void updateResults(Boolean success) {
@@ -486,6 +489,21 @@ public class MainActivity extends AppCompatActivity {
         }
         allFrag.addReceipt(allFrag.new ReceiptContent(groceryStore, getDate().substring(0, 10), products, prices, subtotaal, false, 666));
         saveDataToStorage(linesToFile);
+        saveDataToCloud(linesToFile);
+    }
+
+    private void saveDataToCloud(ArrayList<String> data) {
+//        ParseObject receiptData = new ParseObject("Receipt");
+//
+//
+//
+//        receiptData.put("product", data);
+//        receiptData.put("bon", img);
+//
+//        receiptData.saveInBackground();
+
+        img.put("data", data);
+        img.saveInBackground();
     }
 
     @Override
