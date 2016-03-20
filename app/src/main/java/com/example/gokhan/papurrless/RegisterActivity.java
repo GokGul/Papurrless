@@ -18,7 +18,7 @@ public class RegisterActivity extends AppCompatActivity {
     EditText username;
     EditText password;
     EditText password2;
-    Boolean isPremium;
+    CheckBox isPremium;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,7 +41,7 @@ public class RegisterActivity extends AppCompatActivity {
             ParseUser user = new ParseUser();
             user.setUsername(usr);
             user.setPassword(pwd);
-            user.put("isPremium", isPremium);
+            user.put("isPremium", isPremium.isChecked());
 
             user.signUpInBackground(new SignUpCallback() {
                 public void done(ParseException e) {
@@ -69,6 +69,6 @@ public class RegisterActivity extends AppCompatActivity {
         username = (EditText) findViewById(R.id.txt_username);
         password = (EditText) findViewById(R.id.txt_password);
         password2 = (EditText) findViewById(R.id.txt_password2);
-        isPremium = ((CheckBox) findViewById(R.id.chk_premium)).isChecked();
+        isPremium = (CheckBox) findViewById(R.id.chk_premium);
     }
 }

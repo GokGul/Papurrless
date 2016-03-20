@@ -511,8 +511,6 @@ public class MainActivity extends AppCompatActivity {
     private void saveDataToCloud(ArrayList<String> data) {
 //        ParseObject receiptData = new ParseObject("Receipt");
 //
-//
-//
 //        receiptData.put("product", data);
 //        receiptData.put("bon", img);
 //
