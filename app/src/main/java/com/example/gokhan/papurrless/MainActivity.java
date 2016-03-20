@@ -171,10 +171,10 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_login) {
-            if(!premiumEnabled)
-                logIn();
-            else
+            if(user != null)
                 logOut();
+            else
+                logIn();
             return true;
         }
 
