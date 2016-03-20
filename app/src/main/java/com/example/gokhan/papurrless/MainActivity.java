@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -47,6 +48,9 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.ObjectOutput;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.io.Reader;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -78,7 +82,6 @@ public class MainActivity extends AppCompatActivity {
 
     private final int TAKE_PICTURE = 0;
     private final int SELECT_FILE = 1;
-    private final int KITKAT_SELECT_FILE = 2;
 
     private String outputPath = "result.txt";
 
@@ -204,21 +207,65 @@ public class MainActivity extends AppCompatActivity {
         // using Environment.getExternalStorageState() before doing this.
 
         File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES), "ABBYY Cloud OCR SDK Demo App");
+                Environment.DIRECTORY_PICTURES), "Papurrless");
         // This location works best if you want the created images to be shared
         // between applications and persist after your app has been uninstalled.
 
         // Create the storage directory if it does not exist
         if (!mediaStorageDir.exists()) {
-            if (!mediaStorageDir.mkdirs()) {
-                return null;
-            }
+            mediaStorageDir.mkdirs();
         }
 
         // Create a media file name
         File mediaFile = new File(mediaStorageDir.getPath() + File.separator + "image.jpg");
 
         return mediaFile;
+    }
+
+    public String getDateTime(){
+
+        ExifInterface exitInterface = null;
+        String dateTime = null;
+        try
+        {
+            String path =  getOutputMediaFile().getPath();
+            exitInterface = new ExifInterface(path);
+        }
+        catch(IOException e)
+        {
+            e.printStackTrace();
+        }
+
+        if(exitInterface != null)
+        {
+            dateTime = exitInterface.getAttribute(ExifInterface.TAG_DATETIME);
+        }
+
+        return dateTime;
+    }
+
+    public void saveDataToStorage(ArrayList<String> data){
+
+        try{
+            File mediaStorageDir = new File(Environment.getExternalStorageDirectory(), "Papurrless");
+            if (!mediaStorageDir.exists()) {
+                mediaStorageDir.mkdirs();
+            }
+
+            String dateTaken = getDateTime();
+
+            File file = new File(mediaStorageDir.getPath() + File.separator + "scanned-data" + dateTaken + ".txt");
+            file.createNewFile();
+
+            FileOutputStream fos = new FileOutputStream(file);
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            oos.writeObject(data);
+            oos.close();
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+
+        }
     }
 
     public void captureImageFromSdCard() {
@@ -328,6 +375,7 @@ public class MainActivity extends AppCompatActivity {
         String products = "";
         String prices = "";
         String subtotaal = "";
+        ArrayList<String> linesToFile = new ArrayList();
 
         boolean isGroceryStore = true;
         boolean isProduct = false;
@@ -340,7 +388,7 @@ public class MainActivity extends AppCompatActivity {
                 _value = line.substring(1, 5);
             }
             //
-            while(isGroceryStore) {
+            if(isGroceryStore) {
                 switch (_value) {
                     case "Albe":
                         groceryStore = "AH";
@@ -371,8 +419,8 @@ public class MainActivity extends AppCompatActivity {
                         isGroceryStore = false;
                         break;
                     default:_value= "";
-                }//switch end
-            }//while(isGroceryStore) end
+                }
+            }
 
             //for Albert Heijn receipts only!
             if(groceryStore.equals("AH")){
@@ -382,33 +430,29 @@ public class MainActivity extends AppCompatActivity {
                     isProduct = true;
                     continue;
                 }
-                while(isProduct) {
+                if(isProduct) {
 
                     //only keep uppercase and lowercase letters
-                    String _product = line.toString().replaceAll("[^A-Za-z]", "") + "\n";
+                    String _product = line.replaceAll("[^A-Za-z]", "") + "\n";
                     products += _product;
 
                     //retains the digits, dots and commas
-                    String _price = line.toString().replaceAll("[^\\d,.]+", " ") + "\n";
-                    prices += _price;
+                    String _price = line.replaceAll("[^\\d,.]+", " ") + "\n";
+                    prices += "€"+ _price;
 
                     String _subTotaal = _product.trim();
 
-                    //isProduct gets set to false so that it won't go into the while loop.
-                    //So basically this is the end of the receipt
+                    linesToFile.add(line);
                     if (_subTotaal.equals("SUBTOTAAL") || _subTotaal.equals("TOTAAL")) {
                         subtotaal = _price;
                         isProduct = false;
-                        break;
-                    }
-                    else{
-                        //break out of the while loop and go to the next iteration
                         break;
                     }
                 }
             }
         }
         allFrag.addReceipt(allFrag.new ReceiptContent(groceryStore, "01-01-1000", products, prices, subtotaal, false, 666));
+        saveDataToStorage(linesToFile);
     }
 
     @Override
