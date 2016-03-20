@@ -1,7 +1,6 @@
 package com.example.gokhan.papurrless;
 
 import android.app.Activity;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -13,12 +12,10 @@ import android.media.ExifInterface;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.design.widget.TabLayout;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.PagerAdapter;
 import android.support.v7.app.AlertDialog;
@@ -30,7 +27,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -51,19 +47,13 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
-import java.io.OutputStream;
 import java.io.Reader;
-import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
+
 
 public class MainActivity extends AppCompatActivity {
     private static String tag = "Main Activity";
@@ -221,33 +211,6 @@ public class MainActivity extends AppCompatActivity {
         this.recreate();
     }
 
-    private static Uri getOutputMediaFileUri() {
-        return Uri.fromFile(getOutputMediaFile());
-    }
-
-    /**
-     * Create a File for saving an image or video
-     */
-    private static File getOutputMediaFile() {
-        // To be safe, you should check that the SDCard is mounted
-        // using Environment.getExternalStorageState() before doing this.
-
-        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES), "ABBYY Cloud OCR SDK Demo App");
-        // This location works best if you want the created images to be shared
-        // between applications and persist after your app has been uninstalled.
-
-        // Create the storage directory if it does not exist
-        if (!mediaStorageDir.exists()) {
-            mediaStorageDir.mkdirs();
-        }
-
-        // Create a media file name
-        File mediaFile = new File(mediaStorageDir.getPath() + File.separator + "image.jpg");
-        return mediaFile;
-    }
-
-
     public String getDate(){
 
         ExifInterface exitInterface = null;
@@ -323,26 +286,44 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode != Activity.RESULT_OK)
             return;
-
+        Uri imageUri = data.getData();
         switch (requestCode) {
             case TAKE_PICTURE:
                 if(resultCode == RESULT_OK) {
                     saveImageToParse(data);
                 }
-                imageFilePath = getOutputMediaFile().getPath();
+                imageFilePath = getRealPathFromURI(imageUri);
                 break;
             case SELECT_FILE:
-                Uri imageUri = data.getData();
-                String[] projection = { MediaStore.Images.Media.DATA };
-                Cursor cur = getContentResolver().query(imageUri, projection, null, null, null);
-                cur.moveToFirst();
-                imageFilePath = cur.getString(cur.getColumnIndex(MediaStore.Images.Media.DATA));
-
+                imageFilePath = getRealPathFromURI(imageUri);
                 createImageFromPath(imageFilePath);
                 break;
         }
-
         new AsyncProcessTask(this).execute(imageFilePath, outputPath);
+    }
+
+    //----------------------------------------
+    /**
+     * This method is used to get real path of file from from uri
+     *
+     * @param imageUri
+     * @return String
+     */
+    //----------------------------------------
+    public String getRealPathFromURI(Uri imageUri)
+    {
+        try
+        {
+            String[] proj = {MediaStore.Images.Media.DATA};
+            Cursor cursor = getContentResolver().query(imageUri, proj, null, null, null);
+            int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+            cursor.moveToFirst();
+            return cursor.getString(column_index);
+        }
+        catch (Exception e)
+        {
+            return imageUri.getPath();
+        }
     }
 
     private void createImageFromPath(String imageFilePath) {
