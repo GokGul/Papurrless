@@ -363,6 +363,8 @@ public class ListFragment extends Fragment{
             {
                 Toast.makeText(itemView.getContext(), "EDIT", Toast.LENGTH_SHORT).show();
                 //start edit activity
+                Intent register = new Intent(getActivity(), EditorActivity.class);
+                startActivity(register);
             }
 
             public void openImage()
