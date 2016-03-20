@@ -3,7 +3,9 @@ package com.example.gokhan.papurrless;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -16,6 +18,7 @@ public class RegisterActivity extends AppCompatActivity {
     EditText username;
     EditText password;
     EditText password2;
+    Boolean isPremium;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,10 +35,13 @@ public class RegisterActivity extends AppCompatActivity {
         String pwd = password.getText().toString();
         String pwd2 = password2.getText().toString();
 
+        Log.d("isPremiumOrNot??", "Value: " + isPremium);
+
         if(pwd.equals(pwd2)) {
             ParseUser user = new ParseUser();
             user.setUsername(usr);
             user.setPassword(pwd);
+            user.put("isPremium", isPremium);
 
             user.signUpInBackground(new SignUpCallback() {
                 public void done(ParseException e) {
@@ -63,5 +69,6 @@ public class RegisterActivity extends AppCompatActivity {
         username = (EditText) findViewById(R.id.txt_username);
         password = (EditText) findViewById(R.id.txt_password);
         password2 = (EditText) findViewById(R.id.txt_password2);
+        isPremium = ((CheckBox) findViewById(R.id.chk_premium)).isChecked();
     }
 }
