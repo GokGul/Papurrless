@@ -385,10 +385,6 @@ public class MainActivity extends AppCompatActivity {
         img.saveInBackground();
     }
 
-    private void saveImageToParse(){
-
-    }
-
     public void updateResults(Boolean success) {
         if (!success)
             return;
