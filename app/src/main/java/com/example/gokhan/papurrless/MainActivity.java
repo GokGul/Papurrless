@@ -9,6 +9,8 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.media.ExifInterface;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -100,6 +102,19 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences sharedPref = getSharedPreferences(getString(R.string.premiumEnabled_key), Context.MODE_PRIVATE);
         premiumEnabled = sharedPref.getBoolean(getString(R.string.premiumEnabled), false);
         editor = sharedPref.edit();
+
+        if(isOnline(getApplicationContext()))
+        {
+            //log in/check credentials
+
+            //sync databases
+
+            Toast.makeText(this, "User is online.", Toast.LENGTH_SHORT).show(); //test, remove later
+        }
+        else
+        {
+            Toast.makeText(this, "User is offline.", Toast.LENGTH_SHORT).show(); //test, remove later
+        }
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -555,6 +570,19 @@ public class MainActivity extends AppCompatActivity {
             }
             return createdFragment;
         }
+    }
+
+    public static boolean isOnline(Context context) //om te zien of er internetverbinding is
+    {
+        ConnectivityManager connectionManager = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (connectionManager == null) {
+            return false;
+        }
+        NetworkInfo networkInfo = connectionManager.getActiveNetworkInfo();
+        if (networkInfo == null) {
+            return false;
+        }
+        return networkInfo.isConnected();
     }
 
 }
