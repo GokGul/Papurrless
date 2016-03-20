@@ -9,6 +9,8 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.media.ExifInterface;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -53,11 +55,14 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 
 public class MainActivity extends AppCompatActivity {
     private static String tag = "Main Activity";
@@ -83,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
     private final int TAKE_PICTURE = 0;
     private final int SELECT_FILE = 1;
 
+    String imageFilePath;
     private String outputPath = "result.txt";
 
     private boolean premiumEnabled = false;
@@ -103,6 +109,19 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences sharedPref = getSharedPreferences(getString(R.string.premiumEnabled_key), Context.MODE_PRIVATE);
         premiumEnabled = sharedPref.getBoolean(getString(R.string.premiumEnabled), false);
         editor = sharedPref.edit();
+
+        if(isOnline(getApplicationContext()))
+        {
+            //log in/check credentials
+
+            //sync databases
+
+            Toast.makeText(this, "User is online.", Toast.LENGTH_SHORT).show(); //test, remove later
+        }
+        else
+        {
+            Toast.makeText(this, "User is offline.", Toast.LENGTH_SHORT).show(); //test, remove later
+        }
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -227,13 +246,15 @@ public class MainActivity extends AppCompatActivity {
         return mediaFile;
     }
 
-    public String getDateTime(){
+
+    public String getDate(){
 
         ExifInterface exitInterface = null;
-        String dateTime = null;
+        String formattedDate = null;
+
         try
         {
-            String path =  getOutputMediaFile().getPath();
+            String path =  imageFilePath;
             exitInterface = new ExifInterface(path);
         }
         catch(IOException e)
@@ -243,10 +264,20 @@ public class MainActivity extends AppCompatActivity {
 
         if(exitInterface != null)
         {
-            dateTime = exitInterface.getAttribute(ExifInterface.TAG_DATETIME);
+            try{
+
+                String dateTime = exitInterface.getAttribute(ExifInterface.TAG_DATETIME);
+                SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy:MM:dd HH:mm:ss");
+                dateTimeFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+                Date convertedDate = dateTimeFormat.parse(dateTime);
+                formattedDate = new SimpleDateFormat("dd-MM-yyyy").format(convertedDate);
+            }
+            catch(Exception e){
+                e.printStackTrace();
+            }
         }
 
-        return dateTime;
+        return formattedDate;
     }
 
     public void saveDataToStorage(ArrayList<String> data){
@@ -257,7 +288,7 @@ public class MainActivity extends AppCompatActivity {
                 mediaStorageDir.mkdirs();
             }
 
-            String dateTaken = getDateTime();
+            String dateTaken = getDate();
 
             File file = new File(mediaStorageDir.getPath() + File.separator + "scanned-data" + dateTaken + ".txt");
             file.createNewFile();
@@ -269,7 +300,6 @@ public class MainActivity extends AppCompatActivity {
         }
         catch(Exception e) {
             e.printStackTrace();
-
         }
     }
 
@@ -293,8 +323,6 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode != Activity.RESULT_OK)
             return;
-
-        String imageFilePath = null;
 
         switch (requestCode) {
             case TAKE_PICTURE:
@@ -456,7 +484,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
-        allFrag.addReceipt(allFrag.new ReceiptContent(groceryStore, "01-01-1000", products, prices, subtotaal, false, 666));
+        allFrag.addReceipt(allFrag.new ReceiptContent(groceryStore, getDate().substring(0, 10), products, prices, subtotaal, false, 666));
         saveDataToStorage(linesToFile);
     }
 
@@ -560,6 +588,19 @@ public class MainActivity extends AppCompatActivity {
             }
             return createdFragment;
         }
+    }
+
+    public static boolean isOnline(Context context) //om te zien of er internetverbinding is
+    {
+        ConnectivityManager connectionManager = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (connectionManager == null) {
+            return false;
+        }
+        NetworkInfo networkInfo = connectionManager.getActiveNetworkInfo();
+        if (networkInfo == null) {
+            return false;
+        }
+        return networkInfo.isConnected();
     }
 
 }
