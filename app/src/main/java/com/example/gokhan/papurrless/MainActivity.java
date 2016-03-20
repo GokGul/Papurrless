@@ -86,6 +86,9 @@ public class MainActivity extends AppCompatActivity {
     private String outputPath = "result.txt";
 
     private boolean premiumEnabled = false;
+
+    ParseUser user = ParseUser.getCurrentUser();
+
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
      * See https://g.co/AppIndexing/AndroidStudio for more information.
@@ -151,7 +154,7 @@ public class MainActivity extends AppCompatActivity {
 
         MenuItem loginMenuItem = menu.findItem(R.id.action_login);
 
-        if(premiumEnabled)
+        if(user != null)
         {
             loginMenuItem.setTitle(R.string.action_log_out);
         }
