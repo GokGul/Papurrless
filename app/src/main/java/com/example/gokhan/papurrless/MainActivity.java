@@ -503,7 +503,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
-        allFrag.addReceipt(allFrag.new ReceiptContent(groceryStore, getDate().substring(0, 10), products, prices, subtotaal, false, 666));
+        allFrag.addReceipt(allFrag.new ReceiptContent(groceryStore, getDate(), products, prices, subtotaal, false, 666));
         saveDataToStorage(linesToFile);
         saveDataToCloud(linesToFile);
     }

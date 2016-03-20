@@ -107,6 +107,7 @@ public class AsyncProcessTask extends AsyncTask<String, String, Boolean> {
         catch(Exception e){
             final String message = "Error: " + e.getMessage();
             publishProgress(message);
+            e.printStackTrace();
             return false;
         }
     }
