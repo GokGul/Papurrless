@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.ExifInterface;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -336,25 +337,44 @@ public class MainActivity extends AppCompatActivity {
                 Cursor cur = getContentResolver().query(imageUri, projection, null, null, null);
                 cur.moveToFirst();
                 imageFilePath = cur.getString(cur.getColumnIndex(MediaStore.Images.Media.DATA));
+
+                createImageFromPath(imageFilePath);
                 break;
         }
 
         new AsyncProcessTask(this).execute(imageFilePath, outputPath);
     }
 
+    private void createImageFromPath(String imageFilePath) {
+        Bitmap imgBitMap = BitmapFactory.decodeFile(imageFilePath);
+
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        imgBitMap.compress(Bitmap.CompressFormat.JPEG, 100, bos);
+
+        byte[] scaledData = bos.toByteArray();
+
+        saveImageToParse(scaledData);
+    }
+
+    private void saveImageToParse(byte[] scaledData) {
+        ParseFile imgFile = new ParseFile("image.jpg", scaledData);
+
+        ParseUser user = ParseUser.getCurrentUser();
+        img = new ParseObject("Image");
+        img.put("Image", imgFile);
+        img.put("User", user);
+
+        img.saveInBackground();
+    }
+
     private void saveImageToParse(Intent data) {
-        // Resize photo from camera byte array
-
         Bitmap mealImage = (Bitmap) data.getExtras().get("data");
-
-
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         mealImage.compress(Bitmap.CompressFormat.JPEG, 100, bos);
 
         byte[] scaledData = bos.toByteArray();
 
-        // Save the scaled image to Parse
         ParseFile photoFile = new ParseFile("image.jpg", scaledData);
 
         ParseUser user = ParseUser.getCurrentUser();
