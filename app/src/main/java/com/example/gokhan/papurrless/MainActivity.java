@@ -364,6 +364,7 @@ public class MainActivity extends AppCompatActivity {
                     text = text.replaceAll("\\s+", "");
                     //ignore lines that only contain whitespace and no characters
                     if(text.matches(".*\\w.*")) {
+                        System.out.println(text);
                         //this might seem redundant, but somehow the text variable still has leading and trailing spaces.
                         text = text.trim();
                         receiptLines.add(text);
@@ -372,6 +373,7 @@ public class MainActivity extends AppCompatActivity {
             } finally {
                 fis.close();
             }
+
             processReceipt(receiptLines);
 
         } catch (Exception e) {
@@ -466,10 +468,10 @@ public class MainActivity extends AppCompatActivity {
         }
         allFrag.addReceipt(allFrag.new ReceiptContent(groceryStore, getDate(), products, prices, subtotaal, false, 666));
         saveDataToStorage(linesToFile);
-        saveDataToCloud(linesToFile);
+        saveDataToCloud(groceryStore, products, prices, subtotaal);
     }
 
-    private void saveDataToCloud(ArrayList<String> data) {
+    private void saveDataToCloud(String store, String products, String prices, String subtotaal) {
 //        ParseObject receiptData = new ParseObject("Receipt");
 //
 //        receiptData.put("product", data);
@@ -477,7 +479,12 @@ public class MainActivity extends AppCompatActivity {
 //
 //        receiptData.saveInBackground();
 
-        img.put("data", data);
+        img.put("store", store);
+        img.put("products", products);
+        img.put("prices", prices);
+        img.put("subtotaal", subtotaal);
+        img.put("date", getDate());
+//        img.put("data", data);
         img.saveInBackground();
     }
 
