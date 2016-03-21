@@ -36,16 +36,12 @@ import java.util.List;
 /**
  * Created by matth on 11-1-2016.
  */
-public class ListFragment extends Fragment{
+public class ListFragment extends Fragment {
     /**
      * The fragment argument representing the section number for this
      * fragment.
      */
     private static final String ARG_SECTION_NUMBER = "section_number";
-
-    //maximum number of elements in a list when premium isn't enabled
-    private static final int MAX_FAV_ELEMENTS = 4;
-    private static final int MAX_ALL_ELEMENTS = 10;
 
     private static boolean premiumEnabled = false;
 
@@ -66,8 +62,7 @@ public class ListFragment extends Fragment{
 
     private ListFragment otherFrag;
 
-    public void setOtherFrag(ListFragment frag)
-    {
+    public void setOtherFrag(ListFragment frag) {
         otherFrag = frag;
     }
 
@@ -78,8 +73,7 @@ public class ListFragment extends Fragment{
     LinearLayoutManager llm = new LinearLayoutManager(getContext());
 
     //These are the receipt previews
-    class ReceiptContent
-    {
+    class ReceiptContent {
         String market;
         String date; //changes the toolbar color to match branding
         int marketColor;
@@ -92,8 +86,7 @@ public class ListFragment extends Fragment{
         int pricesPreviewDivider;
         int productsPreviewDivider;
 
-        ReceiptContent(String market, String date, String products, String prices, String totalprice, boolean isFavorite, int receiptId)
-        {
+        ReceiptContent(String market, String date, String products, String prices, String totalprice, boolean isFavorite, int receiptId) {
             this.market = market;
             this.date = date;
             marketColor = getMarketColor(market);
@@ -103,14 +96,12 @@ public class ListFragment extends Fragment{
             this.isFavorite = isFavorite;
             this.receiptId = receiptId;
 
-            pricesPreviewDivider = ordinalIndexOf(prices,'\n',4);
-            productsPreviewDivider = ordinalIndexOf(products,'\n',4);
+            pricesPreviewDivider = ordinalIndexOf(prices, '\n', 4);
+            productsPreviewDivider = ordinalIndexOf(products, '\n', 4);
         }
 
-        int getMarketColor(String market)
-        {
-            switch(market)
-            {
+        int getMarketColor(String market) {
+            switch (market) {
                 case "AH":
                     return ContextCompat.getColor(getContext(), R.color.AH);
                 case "Albert Heijn":
@@ -136,59 +127,52 @@ public class ListFragment extends Fragment{
             }
         }
 
-        boolean checkId(int iD)
-        {
-            if(iD==receiptId)
+        boolean checkId(int iD) {
+            if (iD == receiptId)
                 return true;
             else
                 return false;
         }
 
 
-
         int ordinalIndexOf(String str, char c, int n) //determines the position of the nth occurrence of character c
         {
             int pos = str.indexOf(c, 0);
             while (n-- > 0 && pos != -1)
-                pos = str.indexOf(c, pos+1);
-            if(pos==-1)
-            {
-                pos = str.length()-1;
+                pos = str.indexOf(c, pos + 1);
+            if (pos == -1) {
+                pos = str.length() - 1;
                 isShort = true; //So there's no need for a restX string
             }
             return pos;
         }
 
-        String previewProducts()
-        {
-            if(isShort)
+        String previewProducts() {
+            if (isShort)
                 return products;
             else
-                return products.substring(0,productsPreviewDivider);
+                return products.substring(0, productsPreviewDivider);
         }
 
-        String previewPrices()
-        {
-            if(isShort)
+        String previewPrices() {
+            if (isShort)
                 return prices;
             else
-                return prices.substring(0,pricesPreviewDivider);
+                return prices.substring(0, pricesPreviewDivider);
         }
 
-        String restProducts()
-        {
-            if(isShort)
+        String restProducts() {
+            if (isShort)
                 return "";
             else
-                return products.substring(productsPreviewDivider+1);
+                return products.substring(productsPreviewDivider + 1);
         }
 
-        String restPrices()
-        {
-            if(isShort)
+        String restPrices() {
+            if (isShort)
                 return "";
             else
-                return prices.substring(pricesPreviewDivider+1);
+                return prices.substring(pricesPreviewDivider + 1);
         }
     }
 
@@ -254,23 +238,20 @@ public class ListFragment extends Fragment{
 
     private static List<ReceiptContent> receipts;
 
-    public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ReceiptViewHolder>{
+    public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ReceiptViewHolder> {
 
         public List<ReceiptContent> receipts;
         boolean isFavoriteList = false;
 
-        RVAdapter(List<ReceiptContent> receipts)
-        {
+        RVAdapter(List<ReceiptContent> receipts) {
             this.receipts = receipts;
         }
 
-        public void addReceipts(List<ReceiptContent> newReceipts)
-        {
+        public void addReceipts(List<ReceiptContent> newReceipts) {
             receipts.addAll(newReceipts);
         }
 
-        RVAdapter(List<ReceiptContent> receipts, boolean isFavoriteList)
-        {
+        RVAdapter(List<ReceiptContent> receipts, boolean isFavoriteList) {
             this.receipts = receipts;
             this.isFavoriteList = isFavoriteList;
         }
@@ -288,8 +269,7 @@ public class ListFragment extends Fragment{
         }
 
         @Override
-        public void onBindViewHolder(ReceiptViewHolder receiptViewHolder, int i)
-        {
+        public void onBindViewHolder(ReceiptViewHolder receiptViewHolder, int i) {
             receiptViewHolder.toolbar.setTitle(receipts.get(i).market.concat("\t").concat(receipts.get(i).date));
             receiptViewHolder.toolbar.setBackgroundColor(receipts.get(i).marketColor);
             receiptViewHolder.prices.setText(receipts.get(i).previewPrices());
@@ -303,28 +283,7 @@ public class ListFragment extends Fragment{
             super.onAttachedToRecyclerView(recyclerView);
         }
 
-        public class PremiumViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
-            CardView cv;
-
-            PremiumViewHolder(View itemView) {
-                super(itemView);
-                cv = (CardView)itemView.findViewById(R.id.premium_card);
-                itemView.setOnClickListener(this);
-            }
-
-            @Override
-            public void onClick(View v)
-            {
-                //if else because cases require constants
-                if (v.getId() == itemView.getId()){
-                    Intent intent = new Intent(getActivity(), LoginActivity.class);
-                    startActivity(intent);
-                }
-            }
-
-        }
-
-        public class ReceiptViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+        public class ReceiptViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
             CardView cv;
             Toolbar toolbar;
             TextView products;
@@ -338,15 +297,15 @@ public class ListFragment extends Fragment{
 
             ReceiptViewHolder(View itemView) {
                 super(itemView);
-                cv = (CardView)itemView.findViewById(R.id.card_view);
-                toolbar = (Toolbar)cv.findViewById(R.id.toolbar);
-                products = (TextView)itemView.findViewById(R.id.products);
-                prices = (TextView)itemView.findViewById(R.id.prices);
-                totalprice = (TextView)itemView.findViewById(R.id.totalprice);
-                favorite = (CheckBox)itemView.findViewById(R.id.action_favorite);
-                edit = (ImageButton)itemView.findViewById(R.id.action_edit);
-                delete = (ImageButton)itemView.findViewById(R.id.action_delete);
-                image = (ImageButton)itemView.findViewById(R.id.action_image);
+                cv = (CardView) itemView.findViewById(R.id.card_view);
+                toolbar = (Toolbar) cv.findViewById(R.id.toolbar);
+                products = (TextView) itemView.findViewById(R.id.products);
+                prices = (TextView) itemView.findViewById(R.id.prices);
+                totalprice = (TextView) itemView.findViewById(R.id.totalprice);
+                favorite = (CheckBox) itemView.findViewById(R.id.action_favorite);
+                edit = (ImageButton) itemView.findViewById(R.id.action_edit);
+                delete = (ImageButton) itemView.findViewById(R.id.action_delete);
+                image = (ImageButton) itemView.findViewById(R.id.action_image);
                 itemView.setOnClickListener(this);
                 favorite.setOnClickListener(this);
                 edit.setOnClickListener(this);
@@ -355,79 +314,68 @@ public class ListFragment extends Fragment{
             }
 
             @Override
-            public void onClick(View v)
-            {
+            public void onClick(View v) {
                 //if else because cases require constants
-                if (v.getId() == itemView.getId()){
+                if (v.getId() == itemView.getId()) {
                     openDetailedView();
-                } else if (v.getId() == favorite.getId()){
+                } else if (v.getId() == favorite.getId()) {
                     favReceipt(getAdapterPosition());
-                } else if (v.getId() == edit.getId()){
+                } else if (v.getId() == edit.getId()) {
                     editReceipt();
-                } else if (v.getId() == delete.getId()){
+                } else if (v.getId() == delete.getId()) {
                     deleteReceipt(getAdapterPosition());
-                } else if (v.getId() == image.getId()){
+                } else if (v.getId() == image.getId()) {
                     openImage();
                 }
             }
 
-            public void openDetailedView()
-            {
-                if(fullReceipt==null)
-                {
+            public void openDetailedView() {
+                if (fullReceipt == null) {
                     fullReceipt = new FullReceipt(this, receipts.get(getAdapterPosition()).receiptId);
                     fullReceipt.expand();
-                }
-                else
-                {
+                } else {
                     fullReceipt.goBack();
                     fullReceipt = null;
                 }
 
             }
 
-            public void favReceipt(int position)
-            {
-                if(isFavoriteList)  //removes from fav list, changes checkbox in all list
+            public void favReceipt(int position) {
+                if (isFavoriteList)  //removes from fav list, changes checkbox in all list
                 {
                     favOtherList(receipts.get(position).receiptId, position, isFavoriteList);
                     receipts.remove(position);
                     notifyItemRemoved(position);
                     notifyItemRangeChanged(position, getItemCount());
                     //update database with isFavorite = false
-                }
-                else if(receipts.get(position).isFavorite)  //removes from fav list (other screen), updates view
+                } else if (receipts.get(position).isFavorite)  //removes from fav list (other screen), updates view
                 {
                     delOtherList(receipts.get(position).receiptId);
-                    receipts.get(position).isFavorite=false;
+                    receipts.get(position).isFavorite = false;
                     notifyDataSetChanged();
                     //update database with isFavorite = false
-                }
-                else    //adds to fav list, updates view
+                } else    //adds to fav list, updates view
                 {
-                    receipts.get(position).isFavorite=true;
+                    receipts.get(position).isFavorite = true;
                     favOtherList(receipts.get(position).receiptId, position, isFavoriteList);
                     notifyDataSetChanged();
                     //update database with isFavorite = true
                 }
             }
 
-            public void editReceipt()
-            {
+            public void editReceipt() {
                 Toast.makeText(itemView.getContext(), "EDIT", Toast.LENGTH_SHORT).show();
                 //start edit activity
                 Intent register = new Intent(getActivity(), EditorActivity.class);
                 startActivity(register);
             }
 
-            public void openImage()
-            {
+            public void openImage() {
                 Toast.makeText(itemView.getContext(), "OPEN IMAGE", Toast.LENGTH_SHORT).show();
                 //open the original photo
             }
 
-            public void deleteReceipt(final int position)
-            {
+            public void deleteReceipt(final int position) {
                 final ReceiptContent receiptBackup = receipts.get(position);
 
                 final int otherListPosition = delOtherList(receipts.get(position).receiptId);
@@ -445,7 +393,7 @@ public class ListFragment extends Fragment{
                                 receipts.add(position, receiptBackup);
                                 notifyItemInserted(position);
                                 rv.scrollToPosition(position);
-                                if(otherListPosition!=-1)
+                                if (otherListPosition != -1)
                                     undoOtherList(otherListPosition, receiptBackup);
                                 //update database again
                             }
@@ -454,8 +402,7 @@ public class ListFragment extends Fragment{
             }
         }
 
-        public class FullReceipt
-        {
+        public class FullReceipt {
             int receiptPos;
             CardView cv;
             TextView productsRest;
@@ -468,39 +415,34 @@ public class ListFragment extends Fragment{
             FullReceipt(ReceiptViewHolder rvh, int receiptId) {
                 cv = rvh.cv;
                 receiptViewHolder = rvh;
-                productsRest = (TextView)cv.findViewById(R.id.products_rest);
-                pricesRest = (TextView)cv.findViewById(R.id.prices_rest);
-                bottomToolbar = (Toolbar)cv.findViewById(R.id.toolbar_bottom);
-                gradientCutoff = (ImageView)cv.findViewById(R.id.imageView);
-                totalPrice = (TextView)cv.findViewById(R.id.totalprice);
+                productsRest = (TextView) cv.findViewById(R.id.products_rest);
+                pricesRest = (TextView) cv.findViewById(R.id.prices_rest);
+                bottomToolbar = (Toolbar) cv.findViewById(R.id.toolbar_bottom);
+                gradientCutoff = (ImageView) cv.findViewById(R.id.imageView);
+                totalPrice = (TextView) cv.findViewById(R.id.totalprice);
                 receiptPos = findReceipt(receiptId);
                 productsRest.setText(getRestProducts());
                 pricesRest.setText(getRestPrices());
             }
 
-            int findReceipt(int receiptId)
-            {
+            int findReceipt(int receiptId) {
                 int position = 0;
-                for(int i = 0; i < receipts.size(); i++)
-                {
-                    if(receipts.get(i).checkId(receiptId))
+                for (int i = 0; i < receipts.size(); i++) {
+                    if (receipts.get(i).checkId(receiptId))
                         position = i;
                 }
                 return position;
             }
 
-            String getRestProducts()
-            {
+            String getRestProducts() {
                 return receipts.get(receiptPos).restProducts();
             }
 
-            String getRestPrices()
-            {
+            String getRestPrices() {
                 return receipts.get(receiptPos).restPrices();
             }
 
-            public void expand()
-            {
+            public void expand() {
                 //set text views as visible and wrapping
                 ViewGroup.LayoutParams paramsProducts = productsRest.getLayoutParams();
                 paramsProducts.height = ViewGroup.LayoutParams.WRAP_CONTENT;
@@ -515,13 +457,12 @@ public class ListFragment extends Fragment{
                 //remove gradient cutoff
                 gradientCutoff.setVisibility(View.GONE);
                 //put total price below prices
-                PercentRelativeLayout.LayoutParams paramsTotalPrice = (PercentRelativeLayout.LayoutParams)totalPrice.getLayoutParams();
+                PercentRelativeLayout.LayoutParams paramsTotalPrice = (PercentRelativeLayout.LayoutParams) totalPrice.getLayoutParams();
                 paramsTotalPrice.addRule(PercentRelativeLayout.ALIGN_PARENT_BOTTOM);
                 //enable back button
             }
 
-            public void goBack()
-            {
+            public void goBack() {
                 productsRest.setText("");
                 pricesRest.setText("");
                 ViewGroup.LayoutParams paramsProducts = productsRest.getLayoutParams();
@@ -534,55 +475,40 @@ public class ListFragment extends Fragment{
                 pricesRest.setVisibility(View.GONE);
                 bottomToolbar.setVisibility(View.VISIBLE);
                 gradientCutoff.setVisibility(View.VISIBLE);
-                PercentRelativeLayout.LayoutParams paramsTotalPrice = (PercentRelativeLayout.LayoutParams)totalPrice.getLayoutParams();
+                PercentRelativeLayout.LayoutParams paramsTotalPrice = (PercentRelativeLayout.LayoutParams) totalPrice.getLayoutParams();
                 paramsTotalPrice.addRule(PercentRelativeLayout.ALIGN_PARENT_BOTTOM, 0);
                 rv.scrollToPosition(receiptViewHolder.getAdapterPosition());
             }
         }
     }
 
-    public void favOtherList(int receiptId, int currentPosition, boolean isFavoriteList)
-    {
-        if(isFavoriteList) {
+    public void favOtherList(int receiptId, int currentPosition, boolean isFavoriteList) {
+        if (isFavoriteList) {
             int position = -1;
             RVAdapter otherAdapter = otherFrag.adapter;
-            for(int i = 0; i < otherAdapter.receipts.size(); i++)
-            {
-                if(otherAdapter.receipts.get(i).checkId(receiptId))
+            for (int i = 0; i < otherAdapter.receipts.size(); i++) {
+                if (otherAdapter.receipts.get(i).checkId(receiptId))
                     position = i;
             }
-            if(position>-1)
-            {
-                otherAdapter.receipts.get(position).isFavorite=false;
+            if (position > -1) {
+                otherAdapter.receipts.get(position).isFavorite = false;
                 otherAdapter.notifyDataSetChanged();
             }
-        }
-        else
-        {
+        } else {
             RVAdapter otherAdapter = otherFrag.adapter;
-            if(otherAdapter.getItemCount() >= MAX_FAV_ELEMENTS)
-            {
-                Toast.makeText(getContext(), R.string.error_too_many_favorites, Toast.LENGTH_SHORT).show();
-            }
-            else
-            {
-                otherAdapter.receipts.add(0, adapter.receipts.get(currentPosition));
-                otherAdapter.notifyDataSetChanged();
-            }
+            otherAdapter.receipts.add(0, adapter.receipts.get(currentPosition));
+            otherAdapter.notifyDataSetChanged();
         }
     }
 
-    public int delOtherList(int receiptId)
-    {
+    public int delOtherList(int receiptId) {
         int position = -1;
         RVAdapter otherAdapter = otherFrag.adapter;
-        for(int i = 0; i < otherAdapter.receipts.size(); i++)
-        {
-            if(otherAdapter.receipts.get(i).checkId(receiptId))
+        for (int i = 0; i < otherAdapter.receipts.size(); i++) {
+            if (otherAdapter.receipts.get(i).checkId(receiptId))
                 position = i;
         }
-        if(position>-1)
-        {
+        if (position > -1) {
             otherAdapter.receipts.remove(position);
             otherAdapter.notifyItemRemoved(position);
             otherAdapter.notifyItemRangeChanged(position, adapter.getItemCount());
@@ -590,8 +516,7 @@ public class ListFragment extends Fragment{
         return position;
     }
 
-    public void undoOtherList(int position, ReceiptContent receiptBackup)
-    {
+    public void undoOtherList(int position, ReceiptContent receiptBackup) {
         RVAdapter otherAdapter = otherFrag.adapter;
         otherAdapter.receipts.add(position, receiptBackup);
         otherAdapter.notifyDataSetChanged();
@@ -608,8 +533,7 @@ public class ListFragment extends Fragment{
             return fragment;
         }
 
-        private void initializeData()
-        {
+        private void initializeData() {
             receipts = new ArrayList<>();
             receipts.add(new ReceiptContent("AH", "01-01-2021", "2x COCA-COLA\n2x APPELS\n1x DURR\n1x CUTOFF", "€2,33\n€3,75\n€11,22\n€13,77", "€100,00", true, 22));
             receipts.add(new ReceiptContent("Jumbo", "18-06-2011", "2x FANTA\n2x APPELS\n1x DURR\n1x CUTOFF", "€2,33\n€3,75\n€11,22\n€13,77", "€100,00", true, 50));
@@ -619,7 +543,7 @@ public class ListFragment extends Fragment{
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-            rv = (RecyclerView)rootView.findViewById(R.id.cardList);
+            rv = (RecyclerView) rootView.findViewById(R.id.cardList);
             rv.setHasFixedSize(true);
             rv.setLayoutManager(llm);
             initializeData();
@@ -628,11 +552,8 @@ public class ListFragment extends Fragment{
             rv.addOnScrollListener(new EndlessRecyclerViewScrollListener(llm) {
                 @Override
                 public void onLoadMore(int page, int totalItemsCount) {
-                    //limits the amounts of elements that can be loaded if user is not premium
-                    if (premiumEnabled || totalItemsCount < MAX_FAV_ELEMENTS) {
-                        // fetch data asynchronously here
-                        loadMore(page);
-                    }
+                    // fetch data asynchronously here
+                    loadMore(page);
                 }
             });
             return rootView;
@@ -643,7 +564,7 @@ public class ListFragment extends Fragment{
             List<ReceiptContent> moreReceipts;
             moreReceipts = new ArrayList<>();
             //add a certain number of receipts (use page to determine the range, or I guess the key would be better
-            if(offset<3) //this isn't relevant, just a useful limiter for the sake of testing longer lists
+            if (offset < 3) //this isn't relevant, just a useful limiter for the sake of testing longer lists
             {
                 moreReceipts.add(new ReceiptContent("DerpMarkt", "01-01-2009", "2x COCA-COLA\n2x APPELS\n1x DURR\n1x CUTOFF", "€2,33\n€3,75\n€11,22\n€13,77", "€100,00", true, 12));
             }
@@ -666,8 +587,7 @@ public class ListFragment extends Fragment{
             return fragment;
         }
 
-        private void initializeData()
-        {
+        private void initializeData() {
             receipts = new ArrayList<>();
             receipts.add(new ReceiptContent("AH", "01-01-2021", "2x COCA-COLA\n2x APPELS\n1x DURR\n1x CUTOFF", "€2,33\n€3,75\n€11,22\n€13,77", "€100,00", true, 22));
             receipts.add(new ReceiptContent("Jumbo", "18-06-2011", "2x FANTA\n2x APPELS\n1x DURR\n1x CUTOFF", "€2,33\n€3,75\n€11,22\n€13,77", "€100,00", true, 50));
@@ -680,7 +600,7 @@ public class ListFragment extends Fragment{
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_all, container, false);
-            rv = (RecyclerView)rootView.findViewById(R.id.cardList);
+            rv = (RecyclerView) rootView.findViewById(R.id.cardList);
             rv.setHasFixedSize(true);
             rv.setLayoutManager(llm);
             initializeData();
@@ -689,17 +609,14 @@ public class ListFragment extends Fragment{
             rv.addOnScrollListener(new EndlessRecyclerViewScrollListener(llm) {
                 @Override
                 public void onLoadMore(int page, int totalItemsCount) {
-                    //limits the amounts of elements that can be loaded if user is not premium
-                    if (premiumEnabled || totalItemsCount < MAX_ALL_ELEMENTS) {
-                        // fetch data asynchronously here
-                        loadMore(page);
-                    }
+                    // fetch data asynchronously here
+                    loadMore(page);
                 }
             });
             return rootView;
         }
 
-        public void addReceipt(ReceiptContent newReceipt){
+        public void addReceipt(ReceiptContent newReceipt) {
 
             adapter.receipts.add(0, newReceipt);
             adapter.notifyDataSetChanged();
@@ -710,7 +627,7 @@ public class ListFragment extends Fragment{
             List<ReceiptContent> moreReceipts;
             moreReceipts = new ArrayList<>();
             //add a certain number of receipts (use page to determine the range, or I guess the key would be better
-            if(offset<13) //this isn't relevant, just a useful limiter for the sake of testing longer lists
+            if (offset < 13) //this isn't relevant, just a useful limiter for the sake of testing longer lists
             {
                 moreReceipts.add(new ReceiptContent("DerpMarkt", "01-01-2009", "2x COCA-COLA\n2x APPELS\n1x DURR\n1x CUTOFF", "€2,33\n€3,75\n€11,22\n€13,77", "€100,00", false, 12));
             }
