@@ -446,24 +446,20 @@ public class MainActivity extends AppCompatActivity {
                     continue;
                 }
                 if(isProduct) {
-
                     //only keep uppercase and lowercase letters
                     String _product = line.replaceAll("[^A-Za-z]", "") + "\n";
-                    products += _product;
-
                     //retains the digits, dots and commas
                     String _price = line.replaceAll("[^\\d,.]+", " ") + "\n";
-                    prices += "€"+ _price;
 
                     String _subTotaal = _product.trim();
-
+                    linesToFile.add(line);
                     if (_subTotaal.equals("SUBTOTAAL") || _subTotaal.equals("TOTAAL")) {
                         subtotaal = _price;
                         isProduct = false;
                         break;
-                    }
-                    else{
-                        linesToFile.add(line);
+                    }else{
+                        products += _product;
+                        prices += "€"+ _price;
                     }
                 }
             }
