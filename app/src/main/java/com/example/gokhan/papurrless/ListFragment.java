@@ -20,6 +20,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
@@ -288,6 +289,8 @@ public class ListFragment extends Fragment {
             Toolbar toolbar;
             TextView products;
             TextView prices;
+            TextView productsRest;
+            TextView pricesRest;
             TextView totalprice;
             CheckBox favorite;
             ImageButton edit;
@@ -301,12 +304,17 @@ public class ListFragment extends Fragment {
                 toolbar = (Toolbar) cv.findViewById(R.id.toolbar);
                 products = (TextView) itemView.findViewById(R.id.products);
                 prices = (TextView) itemView.findViewById(R.id.prices);
+                productsRest = (TextView) cv.findViewById(R.id.products_rest);
+                pricesRest = (TextView) cv.findViewById(R.id.prices_rest);
                 totalprice = (TextView) itemView.findViewById(R.id.totalprice);
                 favorite = (CheckBox) itemView.findViewById(R.id.action_favorite);
                 edit = (ImageButton) itemView.findViewById(R.id.action_edit);
                 delete = (ImageButton) itemView.findViewById(R.id.action_delete);
                 image = (ImageButton) itemView.findViewById(R.id.action_image);
-                itemView.setOnClickListener(this);
+                products.setOnClickListener(this);
+                prices.setOnClickListener(this);
+                productsRest.setOnClickListener(this);
+                pricesRest.setOnClickListener(this);
                 favorite.setOnClickListener(this);
                 edit.setOnClickListener(this);
                 delete.setOnClickListener(this);
@@ -316,7 +324,7 @@ public class ListFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 //if else because cases require constants
-                if (v.getId() == itemView.getId()) {
+                if (v.getId() == products.getId() || v.getId() == prices.getId() || v.getId() == productsRest.getId() || v.getId() == pricesRest.getId()) {
                     openDetailedView();
                 } else if (v.getId() == favorite.getId()) {
                     favReceipt(getAdapterPosition());
@@ -331,7 +339,7 @@ public class ListFragment extends Fragment {
 
             public void openDetailedView() {
                 if (fullReceipt == null) {
-                    fullReceipt = new FullReceipt(this, receipts.get(getAdapterPosition()).receiptId);
+                    fullReceipt = new FullReceipt(this, receipts.get(getAdapterPosition()).receiptId, pricesRest, productsRest);
                     fullReceipt.expand();
                 } else {
                     fullReceipt.goBack();
@@ -412,13 +420,13 @@ public class ListFragment extends Fragment {
             Toolbar bottomToolbar;
             ReceiptViewHolder receiptViewHolder;
 
-            FullReceipt(ReceiptViewHolder rvh, int receiptId) {
+            FullReceipt(ReceiptViewHolder rvh, int receiptId, TextView priRest, TextView proRest) {
                 cv = rvh.cv;
                 receiptViewHolder = rvh;
-                productsRest = (TextView) cv.findViewById(R.id.products_rest);
-                pricesRest = (TextView) cv.findViewById(R.id.prices_rest);
                 bottomToolbar = (Toolbar) cv.findViewById(R.id.toolbar_bottom);
                 gradientCutoff = (ImageView) cv.findViewById(R.id.imageView);
+                productsRest = proRest;
+                pricesRest = priRest;
                 totalPrice = (TextView) cv.findViewById(R.id.totalprice);
                 receiptPos = findReceipt(receiptId);
                 productsRest.setText(getRestProducts());
@@ -589,7 +597,7 @@ public class ListFragment extends Fragment {
 
         private void initializeData() {
             receipts = new ArrayList<>();
-            receipts.add(new ReceiptContent("AH", "01-01-2021", "2x COCA-COLA\n2x APPELS\n1x DURR\n1x CUTOFF", "€2,33\n€3,75\n€11,22\n€13,77", "€100,00", true, 22));
+            receipts.add(new ReceiptContent("AH", "01-01-2021", getString(R.string.products), "€2,33\n€3,75\n€11,22\n€13,77\n€2,33\n€3,75\n€11,22\n€13,77", "€100,00", true, 22));
             receipts.add(new ReceiptContent("Jumbo", "18-06-2011", "2x FANTA\n2x APPELS\n1x DURR\n1x CUTOFF", "€2,33\n€3,75\n€11,22\n€13,77", "€100,00", true, 50));
             receipts.add(new ReceiptContent("Spar", "01-01-2011", "2x COCA-COLA\n2x APPELS\n1x DURR\n1x CUTOFF", "€2,33\n€3,75\n€11,22\n€13,77", "€90,00", false, 100));
             receipts.add(new ReceiptContent("Dirk", "01-01-2010", "2x COCA-COLA\n2x APPELS\n1x DURR\n1x CUTOFF", "€2,33\n€3,75\n€11,22\n€13,77", "€80,00", false, 33));
