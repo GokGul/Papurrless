@@ -86,8 +86,11 @@ public class ListFragment extends Fragment{
         String products;
         String prices;
         String totalprice;
-        boolean isFavorite;
+        boolean isFavorite, isShort;
         int receiptId;  //this ID is used to keep track of which full receipt to open when pressed
+
+        int pricesPreviewDivider;
+        int productsPreviewDivider;
 
         ReceiptContent(String market, String date, String products, String prices, String totalprice, boolean isFavorite, int receiptId)
         {
@@ -99,6 +102,9 @@ public class ListFragment extends Fragment{
             this.totalprice = totalprice;
             this.isFavorite = isFavorite;
             this.receiptId = receiptId;
+
+            pricesPreviewDivider = ordinalIndexOf(prices,'\n',4);
+            productsPreviewDivider = ordinalIndexOf(products,'\n',4);
         }
 
         int getMarketColor(String market)
@@ -136,6 +142,53 @@ public class ListFragment extends Fragment{
                 return true;
             else
                 return false;
+        }
+
+
+
+        int ordinalIndexOf(String str, char c, int n) //determines the position of the nth occurrence of character c
+        {
+            int pos = str.indexOf(c, 0);
+            while (n-- > 0 && pos != -1)
+                pos = str.indexOf(c, pos+1);
+            if(pos==-1)
+            {
+                pos = str.length()-1;
+                isShort = true; //So there's no need for a restX string
+            }
+            return pos;
+        }
+
+        String previewProducts()
+        {
+            if(isShort)
+                return products;
+            else
+                return products.substring(0,productsPreviewDivider);
+        }
+
+        String previewPrices()
+        {
+            if(isShort)
+                return prices;
+            else
+                return prices.substring(0,pricesPreviewDivider);
+        }
+
+        String restProducts()
+        {
+            if(isShort)
+                return "";
+            else
+                return products.substring(productsPreviewDivider+1);
+        }
+
+        String restPrices()
+        {
+            if(isShort)
+                return "";
+            else
+                return prices.substring(pricesPreviewDivider+1);
         }
     }
 
@@ -239,8 +292,8 @@ public class ListFragment extends Fragment{
         {
             receiptViewHolder.toolbar.setTitle(receipts.get(i).market.concat("\t").concat(receipts.get(i).date));
             receiptViewHolder.toolbar.setBackgroundColor(receipts.get(i).marketColor);
-            receiptViewHolder.prices.setText(receipts.get(i).prices);
-            receiptViewHolder.products.setText(receipts.get(i).products);
+            receiptViewHolder.prices.setText(receipts.get(i).previewPrices());
+            receiptViewHolder.products.setText(receipts.get(i).previewProducts());
             receiptViewHolder.totalprice.setText(receipts.get(i).totalprice);
             receiptViewHolder.favorite.setChecked(receipts.get(i).isFavorite);
         }
@@ -403,7 +456,7 @@ public class ListFragment extends Fragment{
 
         public class FullReceipt
         {
-            int receiptId;
+            int receiptPos;
             CardView cv;
             TextView productsRest;
             TextView pricesRest;
@@ -420,20 +473,30 @@ public class ListFragment extends Fragment{
                 bottomToolbar = (Toolbar)cv.findViewById(R.id.toolbar_bottom);
                 gradientCutoff = (ImageView)cv.findViewById(R.id.imageView);
                 totalPrice = (TextView)cv.findViewById(R.id.totalprice);
+                receiptPos = findReceipt(receiptId);
                 productsRest.setText(getRestProducts());
                 pricesRest.setText(getRestPrices());
             }
 
+            int findReceipt(int receiptId)
+            {
+                int position = 0;
+                for(int i = 0; i < receipts.size(); i++)
+                {
+                    if(receipts.get(i).checkId(receiptId))
+                        position = i;
+                }
+                return position;
+            }
+
             String getRestProducts()
             {
-                String restProducts = getString(R.string.products_rest); //REPLACE WITH DATABASE QUERY
-                return restProducts;
+                return receipts.get(receiptPos).restProducts();
             }
 
             String getRestPrices()
             {
-                String restPrices = getString(R.string.prices_rest); //REPLACE WITH DATABASE QUERY
-                return restPrices;
+                return receipts.get(receiptPos).restPrices();
             }
 
             public void expand()
