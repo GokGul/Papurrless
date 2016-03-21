@@ -51,6 +51,7 @@ import java.io.ObjectOutputStream;
 import java.io.Reader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -213,34 +214,11 @@ public class MainActivity extends AppCompatActivity {
 
     public String getDate(){
 
-        ExifInterface exitInterface = null;
-        String formattedDate = null;
+        Calendar c = Calendar.getInstance();
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+        String strDate = sdf.format(c.getTime());
 
-        try
-        {
-            String path =  imageFilePath;
-            exitInterface = new ExifInterface(path);
-        }
-        catch(IOException e)
-        {
-            e.printStackTrace();
-        }
-
-        if(exitInterface != null)
-        {
-            try{
-
-                String dateTime = exitInterface.getAttribute(ExifInterface.TAG_DATETIME);
-                SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy:MM:dd HH:mm:ss");
-                Date convertedDate = dateTimeFormat.parse(dateTime);
-                formattedDate = new SimpleDateFormat("dd-MM-yyyy").format(convertedDate);
-            }
-            catch(Exception e){
-                e.printStackTrace();
-            }
-        }
-
-        return formattedDate;
+        return strDate;
     }
 
     public void saveDataToStorage(ArrayList<String> data){
@@ -322,6 +300,7 @@ public class MainActivity extends AppCompatActivity {
         }
         catch (Exception e)
         {
+            e.printStackTrace();
             return imageUri.getPath();
         }
     }
@@ -383,7 +362,7 @@ public class MainActivity extends AppCompatActivity {
 
                     //remove all spaces
                     text = text.replaceAll("\\s+", "");
-
+                    System.out.println(text);
                     //ignore lines that only contain whitespace and no characters
                     if(text.matches(".*\\w.*")) {
                         //this might seem redundant, but somehow the text variable still has leading and trailing spaces.
@@ -418,8 +397,11 @@ public class MainActivity extends AppCompatActivity {
             //
             String _value = null;
             if(groceryStore.equals("")) {
-                _value = line.substring(1, 5);
+                if(line.length() > 4) {
+                    _value = line.substring(1, 5);
+                }
             }
+            System.out.println(_value);
             //
             if(isGroceryStore) {
                 switch (_value) {
@@ -435,12 +417,12 @@ public class MainActivity extends AppCompatActivity {
                         groceryStore = "Jumbo";
                         isGroceryStore = false;
                         break;
-                    case "Aldi":
-                        groceryStore = "Aldi";
+                    case "Juib":
+                        groceryStore = "Jumbo";
                         isGroceryStore = false;
                         break;
-                    case "Aidi":
-                        groceryStore = "Aldi";
+                    case "umbo":
+                        groceryStore = "Jumbo";
                         isGroceryStore = false;
                         break;
                     case "Dirk":
@@ -455,11 +437,13 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
-            //for Albert Heijn receipts only!
-            if(groceryStore.equals("AH")){
+            //for Albert Heijn receipts only!"
+            if(groceryStore.equals("AH") ||
+                    groceryStore.equals("Jumbo")){
 
                 //go to next item in the map if the line matches EUR. on the AH receipts products appear right underneath this line
-                if(line.substring(0, line.length()).equals("EUR")){
+                if(line.substring(0, line.length()).equals("EUR") ||
+                        line.substring(0, line.length()).equals("AKKOORD")){
                     isProduct = true;
                     continue;
                 }
@@ -485,6 +469,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         allFrag.addReceipt(allFrag.new ReceiptContent(groceryStore, getDate(), products, prices, subtotaal, false, 666));
+        System.out.println("Date is: "+getDate());
         saveDataToStorage(linesToFile);
         saveDataToCloud(linesToFile);
     }
