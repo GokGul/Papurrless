@@ -45,4 +45,8 @@
     <string name="action_image">Open image</string>
     <string name="action_date">Change date</string>
     <string name="action_supermarket">Change supermarket</string>
+    <string name="action_edit_date">Edit date</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_ok">Ok</string>
+    <string name="total">Total</string>
 </resources>

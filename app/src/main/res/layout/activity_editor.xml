@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main_content"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    tools:context="com.example.gokhan.papurrless.EditorActivity"
-    android:theme="@style/AppTheme.NoActionBar">
+    tools:context="com.example.gokhan.papurrless.EditorActivity">
 
     <android.support.design.widget.AppBarLayout
         android:id="@+id/appbar"
@@ -23,16 +21,24 @@
             app:layout_scrollFlags="scroll|enterAlways"
             app:popupTheme="@style/AppTheme.PopupOverlay"
             android:background="#757575">
-            <EditText
+
+            <TextView
                 android:id="@+id/date"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:inputType="date"
-                android:ems="10"
+                android:textAppearance="?android:attr/textAppearanceLarge"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"
                 android:title="@string/action_date"
                 android:text="22-12-2012" />
+            <android.support.v7.widget.AppCompatImageButton
+                android:id="@+id/action_edit_date"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_today_24dp"
+                android:theme="@style/AppTheme"
+                android:title="@string/action_edit_date" />
             <Spinner
                 android:id="@+id/supermarket"
                 android:layout_width="wrap_content"
@@ -47,6 +53,7 @@
     </android.support.design.widget.AppBarLayout>
 
     <android.support.percent.PercentRelativeLayout
+        android:id="@+id/editorContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentLeft="true"
@@ -61,8 +68,7 @@
             android:id="@+id/editProducts"
             android:layout_alignParentTop="true"
             android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_marginTop="?attr/actionBarSize" />
+            android:layout_alignParentStart="true" />
         <EditText
             app:layout_widthPercent="30%"
             android:layout_height="wrap_content"
@@ -71,8 +77,54 @@
             android:id="@+id/editPrices"
             android:layout_alignParentTop="true"
             android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true"
-            android:layout_marginTop="?attr/actionBarSize" />
+            android:layout_alignParentEnd="true" />
     </android.support.percent.PercentRelativeLayout>
 
-</android.support.design.widget.CoordinatorLayout>
+    <LinearLayout
+        android:id="@+id/bottom_buttons_container"
+        android:layout_alignParentBottom="true"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/action_bar_button_cancel"
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="@string/action_cancel" />
+
+        <Button
+            android:id="@+id/action_bar_button_ok"
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="@string/action_ok" />
+    </LinearLayout>
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="numberDecimal"
+        android:ems="10"
+        android:id="@+id/editText"
+        android:layout_above="@+id/bottom_buttons_container"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/total"
+        android:gravity="center"
+        android:id="@+id/totalDescription"
+        android:layout_above="@+id/bottom_buttons_container"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_toLeftOf="@+id/editText"
+        android:layout_toStartOf="@+id/editText"
+        android:layout_alignTop="@+id/editText"
+        android:textStyle="bold" />
+
+</RelativeLayout>
