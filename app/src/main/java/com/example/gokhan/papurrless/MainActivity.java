@@ -362,7 +362,6 @@ public class MainActivity extends AppCompatActivity {
 
                     //remove all spaces
                     text = text.replaceAll("\\s+", "");
-                    System.out.println(text);
                     //ignore lines that only contain whitespace and no characters
                     if(text.matches(".*\\w.*")) {
                         //this might seem redundant, but somehow the text variable still has leading and trailing spaces.
@@ -401,7 +400,6 @@ public class MainActivity extends AppCompatActivity {
                     _value = line.substring(1, 5);
                 }
             }
-            System.out.println(_value);
             //
             if(isGroceryStore) {
                 switch (_value) {
@@ -459,17 +457,18 @@ public class MainActivity extends AppCompatActivity {
 
                     String _subTotaal = _product.trim();
 
-                    linesToFile.add(line);
                     if (_subTotaal.equals("SUBTOTAAL") || _subTotaal.equals("TOTAAL")) {
                         subtotaal = _price;
                         isProduct = false;
                         break;
                     }
+                    else{
+                        linesToFile.add(line);
+                    }
                 }
             }
         }
         allFrag.addReceipt(allFrag.new ReceiptContent(groceryStore, getDate(), products, prices, subtotaal, false, 666));
-        System.out.println("Date is: "+getDate());
         saveDataToStorage(linesToFile);
         saveDataToCloud(linesToFile);
     }
