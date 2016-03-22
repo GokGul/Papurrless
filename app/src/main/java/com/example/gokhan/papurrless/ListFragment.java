@@ -619,7 +619,13 @@ public class ListFragment extends Fragment {
                     if (objects.size() > 0) {
                         System.out.println("list size: " + objects.size());
                         for (int i = 0; i < objects.size(); i++) {
-                            receipts.add(new ReceiptContent(objects.get(i).get("store").toString(), objects.get(i).get("date").toString(), objects.get(i).get("products").toString(), objects.get(i).get("prices").toString(), objects.get(i).get("subtotaal").toString(), false, 11));
+                            String store = objects.get(i).get("store").toString();
+                            String date = objects.get(i).get("date").toString();
+                            String products = objects.get(i).get("products").toString();
+                            String prices = objects.get(i).get("prices").toString();
+                            String subtotaal = objects.get(i).get("subtotaal").toString();
+
+                            receipts.add(new ReceiptContent(store, date, products, prices, subtotaal, false, 11));
                         }
                     }else {
                         Toast.makeText(getActivity(), "Nothing to show..", Toast.LENGTH_SHORT).show();

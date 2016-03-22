@@ -475,13 +475,17 @@ public class MainActivity extends AppCompatActivity {
 //
 //        receiptData.saveInBackground();
 
-        img.put("store", store);
-        img.put("products", products);
-        img.put("prices", prices);
-        img.put("subtotaal", subtotaal);
-        img.put("date", getDate());
+        if(store.equals("") || products.equals("") || prices.equals("") || subtotaal.equals("")){
+            Toast.makeText(MainActivity.this, "Something went wrong, please try again..", Toast.LENGTH_SHORT).show();
+        }else{
+            img.put("store", store);
+            img.put("products", products);
+            img.put("prices", prices);
+            img.put("subtotaal", subtotaal);
+            img.put("date", getDate());
 //        img.put("data", data);
-        img.saveInBackground();
+            img.saveInBackground();
+        }
     }
 
     @Override
