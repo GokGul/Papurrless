@@ -250,25 +250,25 @@ public class ListFragment extends Fragment {
 
     public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ReceiptViewHolder> {
 
-        public List<ReceiptContent> receipts;
+        public List<ReceiptContent> receiptsA;
         boolean isFavoriteList = false;
 
         RVAdapter(List<ReceiptContent> receipts) {
-            this.receipts = receipts;
+            this.receiptsA = receipts;
         }
 
         public void addReceipts(List<ReceiptContent> newReceipts) {
-            receipts.addAll(newReceipts);
+            receiptsA.addAll(newReceipts);
         }
 
         RVAdapter(List<ReceiptContent> receipts, boolean isFavoriteList) {
-            this.receipts = receipts;
+            this.receiptsA = receipts;
             this.isFavoriteList = isFavoriteList;
         }
 
         @Override
         public int getItemCount() {
-            return receipts.size();
+            return receiptsA.size();
         }
 
         @Override
@@ -280,12 +280,12 @@ public class ListFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(ReceiptViewHolder receiptViewHolder, int i) {
-            receiptViewHolder.toolbar.setTitle(receipts.get(i).market.concat("\t").concat(receipts.get(i).date));
-            receiptViewHolder.toolbar.setBackgroundColor(receipts.get(i).marketColor);
-            receiptViewHolder.prices.setText(receipts.get(i).previewPrices());
-            receiptViewHolder.products.setText(receipts.get(i).previewProducts());
-            receiptViewHolder.totalprice.setText(receipts.get(i).totalprice);
-            receiptViewHolder.favorite.setChecked(receipts.get(i).isFavorite);
+            receiptViewHolder.toolbar.setTitle(receiptsA.get(i).market.concat("\t").concat(receiptsA.get(i).date));
+            receiptViewHolder.toolbar.setBackgroundColor(receiptsA.get(i).marketColor);
+            receiptViewHolder.prices.setText(receiptsA.get(i).previewPrices());
+            receiptViewHolder.products.setText(receiptsA.get(i).previewProducts());
+            receiptViewHolder.totalprice.setText(receiptsA.get(i).totalprice);
+            receiptViewHolder.favorite.setChecked(receiptsA.get(i).isFavorite);
         }
 
         @Override
@@ -348,7 +348,7 @@ public class ListFragment extends Fragment {
 
             public void openDetailedView() {
                 if (fullReceipt == null) {
-                    fullReceipt = new FullReceipt(this, receipts.get(getAdapterPosition()).receiptId, pricesRest, productsRest);
+                    fullReceipt = new FullReceipt(this, receiptsA.get(getAdapterPosition()).receiptId, pricesRest, productsRest);
                     fullReceipt.expand();
                 } else {
                     fullReceipt.goBack();
@@ -360,31 +360,37 @@ public class ListFragment extends Fragment {
             public void favReceipt(int position) {
                 if (isFavoriteList)  //removes from fav list, changes checkbox in all list
                 {
-                    favOtherList(receipts.get(position).receiptId, position, isFavoriteList);
-                    receipts.remove(position);
+                    favOtherList(receiptsA.get(position).receiptId, position, isFavoriteList);
+                    receiptsA.remove(position);
                     notifyItemRemoved(position);
                     notifyItemRangeChanged(position, getItemCount());
                     //update database with isFavorite = false
-                } else if (receipts.get(position).isFavorite)  //removes from fav list (other screen), updates view
+                } else if (receiptsA.get(position).isFavorite)  //removes from fav list (other screen), updates view
                 {
-                    delOtherList(receipts.get(position).receiptId);
-                    receipts.get(position).isFavorite = false;
+                    delOtherList(receiptsA.get(position).receiptId);
+                    receiptsA.get(position).isFavorite = false;
                     notifyDataSetChanged();
                     //update database with isFavorite = false
                 } else    //adds to fav list, updates view
                 {
-                    receipts.get(position).isFavorite = true;
-                    favOtherList(receipts.get(position).receiptId, position, isFavoriteList);
+                    receiptsA.get(position).isFavorite = true;
+                    favOtherList(receiptsA.get(position).receiptId, position, isFavoriteList);
                     notifyDataSetChanged();
                     //update database with isFavorite = true
                 }
             }
 
             public void editReceipt() {
-                Toast.makeText(itemView.getContext(), "EDIT", Toast.LENGTH_SHORT).show();
-                //start edit activity
-                Intent register = new Intent(getActivity(), EditorActivity.class);
-                startActivity(register);
+                int receiptId = receiptsA.get(getAdapterPosition()).receiptId;
+                int position = 0;
+                for (int i = 0; i < receipts.size(); i++) {
+                    if (receipts.get(i).checkId(receiptId))
+                        position = i;
+                }
+                Intent editor = new Intent(getActivity(), EditorActivity.class);
+                editor.putExtra("products", receipts.get(position).products);
+                editor.putExtra("prices", receipts.get(position).prices);
+                startActivity(editor);
             }
 
             public void openImage() {
@@ -393,10 +399,10 @@ public class ListFragment extends Fragment {
             }
 
             public void deleteReceipt(final int position) {
-                final ReceiptContent receiptBackup = receipts.get(position);
+                final ReceiptContent receiptBackup = receiptsA.get(position);
 
-                final int otherListPosition = delOtherList(receipts.get(position).receiptId);
-                receipts.remove(position);
+                final int otherListPosition = delOtherList(receiptsA.get(position).receiptId);
+                receiptsA.remove(position);
                 notifyItemRemoved(position);
                 notifyItemRangeChanged(position, getItemCount());
 
@@ -407,7 +413,7 @@ public class ListFragment extends Fragment {
                         .setAction(R.string.undo, new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
-                                receipts.add(position, receiptBackup);
+                                receiptsA.add(position, receiptBackup);
                                 notifyItemInserted(position);
                                 rv.scrollToPosition(position);
                                 if (otherListPosition != -1)
@@ -444,19 +450,19 @@ public class ListFragment extends Fragment {
 
             int findReceipt(int receiptId) {
                 int position = 0;
-                for (int i = 0; i < receipts.size(); i++) {
-                    if (receipts.get(i).checkId(receiptId))
+                for (int i = 0; i < receiptsA.size(); i++) {
+                    if (receiptsA.get(i).checkId(receiptId))
                         position = i;
                 }
                 return position;
             }
 
             String getRestProducts() {
-                return receipts.get(receiptPos).restProducts();
+                return receiptsA.get(receiptPos).restProducts();
             }
 
             String getRestPrices() {
-                return receipts.get(receiptPos).restPrices();
+                return receiptsA.get(receiptPos).restPrices();
             }
 
             public void expand() {
@@ -503,17 +509,17 @@ public class ListFragment extends Fragment {
         if (isFavoriteList) {
             int position = -1;
             RVAdapter otherAdapter = otherFrag.adapter;
-            for (int i = 0; i < otherAdapter.receipts.size(); i++) {
-                if (otherAdapter.receipts.get(i).checkId(receiptId))
+            for (int i = 0; i < otherAdapter.receiptsA.size(); i++) {
+                if (otherAdapter.receiptsA.get(i).checkId(receiptId))
                     position = i;
             }
             if (position > -1) {
-                otherAdapter.receipts.get(position).isFavorite = false;
+                otherAdapter.receiptsA.get(position).isFavorite = false;
                 otherAdapter.notifyDataSetChanged();
             }
         } else {
             RVAdapter otherAdapter = otherFrag.adapter;
-            otherAdapter.receipts.add(0, adapter.receipts.get(currentPosition));
+            otherAdapter.receiptsA.add(0, adapter.receiptsA.get(currentPosition));
             otherAdapter.notifyDataSetChanged();
         }
     }
@@ -521,12 +527,12 @@ public class ListFragment extends Fragment {
     public int delOtherList(int receiptId) {
         int position = -1;
         RVAdapter otherAdapter = otherFrag.adapter;
-        for (int i = 0; i < otherAdapter.receipts.size(); i++) {
-            if (otherAdapter.receipts.get(i).checkId(receiptId))
+        for (int i = 0; i < otherAdapter.receiptsA.size(); i++) {
+            if (otherAdapter.receiptsA.get(i).checkId(receiptId))
                 position = i;
         }
         if (position > -1) {
-            otherAdapter.receipts.remove(position);
+            otherAdapter.receiptsA.remove(position);
             otherAdapter.notifyItemRemoved(position);
             otherAdapter.notifyItemRangeChanged(position, adapter.getItemCount());
         }
@@ -535,7 +541,7 @@ public class ListFragment extends Fragment {
 
     public void undoOtherList(int position, ReceiptContent receiptBackup) {
         RVAdapter otherAdapter = otherFrag.adapter;
-        otherAdapter.receipts.add(position, receiptBackup);
+        otherAdapter.receiptsA.add(position, receiptBackup);
         otherAdapter.notifyDataSetChanged();
     }
 
@@ -672,7 +678,7 @@ public class ListFragment extends Fragment {
 
         public void addReceipt(ReceiptContent newReceipt) {
 
-            adapter.receipts.add(0, newReceipt);
+            adapter.receiptsA.add(0, newReceipt);
             adapter.notifyDataSetChanged();
         }
 
