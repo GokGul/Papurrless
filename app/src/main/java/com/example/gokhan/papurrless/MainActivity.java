@@ -213,9 +213,8 @@ public class MainActivity extends AppCompatActivity {
     public String getDate(){
 
         Calendar c = Calendar.getInstance();
-        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
         String strDate = sdf.format(c.getTime());
-
         return strDate;
     }
 
@@ -365,7 +364,6 @@ public class MainActivity extends AppCompatActivity {
                     text = text.replaceAll("\\s+", "");
                     //ignore lines that only contain whitespace and no characters
                     if(text.matches(".*\\w.*")) {
-                        System.out.println(text);
                         //this might seem redundant, but somehow the text variable still has leading and trailing spaces.
                         text = text.trim();
                         receiptLines.add(text);
@@ -490,7 +488,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
-        allFrag.addReceipt(allFrag.new ReceiptContent(groceryStore, getDate(), products, prices, subtotaal, false, 666));
+        allFrag.addReceipt(allFrag.new ReceiptContent(groceryStore, getDate().substring(0, 10), products, prices, subtotaal, false, 666));
         if(!invokedFromStorage) {
             saveDataToStorage(linesToFile);
             saveDataToCloud(groceryStore, products, prices, subtotaal);
@@ -498,12 +496,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void saveDataToCloud(String store, String products, String prices, String subtotaal) {
-//        ParseObject receiptData = new ParseObject("Receipt");
-//
-//        receiptData.put("product", data);
-//        receiptData.put("bon", img);
-//
-//        receiptData.saveInBackground();
 
         if(store.equals("") || products.equals("") || prices.equals("") || subtotaal.equals("")){
             Toast.makeText(MainActivity.this, "Something went wrong, please try again..", Toast.LENGTH_SHORT).show();
