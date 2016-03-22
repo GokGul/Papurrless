@@ -201,10 +201,6 @@ public class MainActivity extends AppCompatActivity {
 
     public void logOut()
     {
-//        premiumEnabled = false;
-//        editor.putBoolean(getString(R.string.premiumEnabled), false);
-//        editor.commit();
-
         user.logOut();
 
         Toast.makeText(this, R.string.toast_logged_out, Toast.LENGTH_SHORT).show();

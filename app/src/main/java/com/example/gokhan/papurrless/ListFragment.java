@@ -611,13 +611,18 @@ public class ListFragment extends Fragment {
             ParseUser user = ParseUser.getCurrentUser();
 
             ParseQuery<ParseObject> query = ParseQuery.getQuery("Image");
-            query.whereEqualTo("user", user);
+            query.whereEqualTo("User", user);
 
             query.findInBackground(new FindCallback<ParseObject>() {
                 @Override
                 public void done(List<ParseObject> objects, ParseException e) {
-                    for (int i=0;i<objects.size();i++) {
-                        receipts.add(new ReceiptContent(objects.get(i).get("store").toString(), objects.get(i).get("date").toString(), objects.get(i).get("products").toString(), objects.get(i).get("prices").toString(),objects.get(i).get("subtotaal").toString(), false, 11));
+                    if (objects.size() > 0) {
+                        System.out.println("list size: " + objects.size());
+                        for (int i = 0; i < objects.size(); i++) {
+                            receipts.add(new ReceiptContent(objects.get(i).get("store").toString(), objects.get(i).get("date").toString(), objects.get(i).get("products").toString(), objects.get(i).get("prices").toString(), objects.get(i).get("subtotaal").toString(), false, 11));
+                        }
+                    }else {
+                        Toast.makeText(getActivity(), "Nothing to show..", Toast.LENGTH_SHORT).show();
                     }
                 }
             });
