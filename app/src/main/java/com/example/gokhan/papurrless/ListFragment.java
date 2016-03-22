@@ -1,5 +1,6 @@
 package com.example.gokhan.papurrless;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -54,6 +55,15 @@ public class ListFragment extends Fragment {
     private static final String ARG_SECTION_NUMBER = "section_number";
 
     private static boolean premiumEnabled = false;
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if( requestCode == 1342 ) {
+            Bundle b = data.getExtras();
+            String toastTest = b.getString("totalprice");
+            Toast.makeText(getContext(), toastTest, Toast.LENGTH_SHORT).show();
+        }
+    }
 
     public ListFragment() {
     }
@@ -110,7 +120,7 @@ public class ListFragment extends Fragment {
             productsPreviewDivider = ordinalIndexOf(products, '\n', 4);
         }
 
-        int getMarketColor(String market) {
+        public int getMarketColor(String market) {
             switch (market) {
                 case "AH":
                     return ContextCompat.getColor(getContext(), R.color.AH);
@@ -388,9 +398,14 @@ public class ListFragment extends Fragment {
                         position = i;
                 }
                 Intent editor = new Intent(getActivity(), EditorActivity.class);
+                editor.putExtra("date", receipts.get(position).date);
+                editor.putExtra("market", receipts.get(position).market);
                 editor.putExtra("products", receipts.get(position).products);
                 editor.putExtra("prices", receipts.get(position).prices);
-                startActivity(editor);
+                editor.putExtra("totalprice", receipts.get(position).totalprice);
+                editor.putExtra("isFavorite", receipts.get(position).isFavorite);
+                editor.putExtra("receiptId", receipts.get(position).receiptId);
+                startActivityForResult(editor, 1342);
             }
 
             public void openImage() {

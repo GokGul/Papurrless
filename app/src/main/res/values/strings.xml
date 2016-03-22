@@ -49,4 +49,16 @@
     <string name="action_cancel">Cancel</string>
     <string name="action_ok">Ok</string>
     <string name="total">Total</string>
+    <string-array name="markets_array">
+        <item>Not Listed</item>
+        <item>AH</item>
+        <item>Aldi</item>
+        <item>Dirk</item>
+        <item>Jumbo</item>
+        <item>Lidl</item>
+        <item>Makro</item>
+        <item>Plus</item>
+        <item>Sligro</item>
+        <item>Spar</item>
+    </string-array>
 </resources>

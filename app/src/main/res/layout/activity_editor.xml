@@ -11,16 +11,14 @@
         android:id="@+id/appbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:theme="@style/AppTheme.AppBarOverlay"
-        android:background="#757575">
+        android:theme="@style/AppTheme.AppBarOverlay">
 
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             app:layout_scrollFlags="scroll|enterAlways"
-            app:popupTheme="@style/AppTheme.PopupOverlay"
-            android:background="#757575">
+            app:popupTheme="@style/AppTheme.PopupOverlay">
 
             <TextView
                 android:id="@+id/date"
@@ -29,16 +27,7 @@
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"
-                android:title="@string/action_date"
                 android:text="22-12-2012" />
-            <android.support.v7.widget.AppCompatImageButton
-                android:id="@+id/action_edit_date"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/ic_today_24dp"
-                android:theme="@style/AppTheme"
-                android:title="@string/action_edit_date" />
             <Spinner
                 android:id="@+id/supermarket"
                 android:layout_width="wrap_content"
@@ -46,6 +35,7 @@
                 android:layout_gravity="right"
                 android:layout_alignParentRight="true"
                 android:layout_alignParentEnd="true"
+                android:theme="@style/AppTheme"
                 android:title="@string/action_supermarket" />
 
         </android.support.v7.widget.Toolbar>
@@ -92,14 +82,16 @@
             android:layout_width="fill_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="@string/action_cancel" />
+            android:text="@string/action_cancel"
+            android:onClick="cancel" />
 
         <Button
             android:id="@+id/action_bar_button_ok"
             android:layout_width="fill_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="@string/action_ok" />
+            android:text="@string/action_ok"
+            android:onClick="ok" />
     </LinearLayout>
 
     <EditText
@@ -107,7 +99,7 @@
         android:layout_height="wrap_content"
         android:inputType="numberDecimal"
         android:ems="10"
-        android:id="@+id/editText"
+        android:id="@+id/editTotalPrice"
         android:layout_above="@+id/bottom_buttons_container"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true" />
@@ -122,9 +114,9 @@
         android:layout_above="@+id/bottom_buttons_container"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_toLeftOf="@+id/editText"
-        android:layout_toStartOf="@+id/editText"
-        android:layout_alignTop="@+id/editText"
+        android:layout_toLeftOf="@+id/editTotalPrice"
+        android:layout_toStartOf="@+id/editTotalPrice"
+        android:layout_alignTop="@+id/editTotalPrice"
         android:textStyle="bold" />
 
 </RelativeLayout>
