@@ -41,10 +41,12 @@ import com.parse.ParseObject;
 import com.parse.ParseUser;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.ObjectOutputStream;
@@ -230,10 +232,13 @@ public class MainActivity extends AppCompatActivity {
             File file = new File(mediaStorageDir.getPath() + File.separator + "scanned-data" + dateTaken + ".txt");
             file.createNewFile();
 
-            FileOutputStream fos = new FileOutputStream(file);
-            ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(data);
-            oos.close();
+            FileWriter fw = new FileWriter(file);
+            BufferedWriter bw = new BufferedWriter(fw);
+            for(String line : data) {
+                bw.write(line + "\n");
+            }
+            bw.close();
+
         }
         catch(Exception e) {
             e.printStackTrace();
@@ -370,7 +375,7 @@ public class MainActivity extends AppCompatActivity {
                 fis.close();
             }
 
-            processReceipt(receiptLines);
+            processReceipt(receiptLines, false);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -378,7 +383,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void processReceipt(List<String> lines){
+    public void processReceipt(List<String> lines, boolean invokedFromStorage){
 
         String groceryStore = "";
         String products = "";
@@ -391,42 +396,64 @@ public class MainActivity extends AppCompatActivity {
 
         for(String line : lines){
 
-            //
+
             String _value = null;
             if(groceryStore.equals("")) {
+                //when receipt data is loaded from abbyy api
                 if(line.length() > 4) {
                     _value = line.substring(1, 5);
                 }
+                else{
+                    //when receipt data is loaded from storage
+                    _value = line;
+                }
             }
-            //
+
             if(isGroceryStore) {
                 switch (_value) {
                     case "Albe":
                         groceryStore = "AH";
+                        linesToFile.add(groceryStore);
                         isGroceryStore = false;
                         break;
                     case "Aibe":
                         groceryStore = "AH";
+                        linesToFile.add(groceryStore);
+                        isGroceryStore = false;
+                        break;
+                    case "AH":
+                        groceryStore = "AH";
+                        linesToFile.add(groceryStore);
                         isGroceryStore = false;
                         break;
                     case "Jumb":
                         groceryStore = "Jumbo";
+                        linesToFile.add(groceryStore);
                         isGroceryStore = false;
                         break;
                     case "Juib":
                         groceryStore = "Jumbo";
+                        linesToFile.add(groceryStore);
                         isGroceryStore = false;
                         break;
                     case "umbo":
                         groceryStore = "Jumbo";
+                        linesToFile.add(groceryStore);
+                        isGroceryStore = false;
+                        break;
+                    case "Jumbo":
+                        groceryStore = "Jumbo";
+                        linesToFile.add(groceryStore);
                         isGroceryStore = false;
                         break;
                     case "Dirk":
                         groceryStore = "Dirk";
+                        linesToFile.add(groceryStore);
                         isGroceryStore = false;
                         break;
                     case "Dink":
                         groceryStore = "Dirk";
+                        linesToFile.add(groceryStore);
                         isGroceryStore = false;
                         break;
                     default:_value= "";
@@ -440,6 +467,7 @@ public class MainActivity extends AppCompatActivity {
                 //go to next item in the map if the line matches EUR. on the AH receipts products appear right underneath this line
                 if(line.substring(0, line.length()).equals("EUR") ||
                         line.substring(0, line.length()).equals("AKKOORD")){
+                    linesToFile.add(line);
                     isProduct = true;
                     continue;
                 }
@@ -463,8 +491,10 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         allFrag.addReceipt(allFrag.new ReceiptContent(groceryStore, getDate(), products, prices, subtotaal, false, 666));
-        saveDataToStorage(linesToFile);
-        saveDataToCloud(groceryStore, products, prices, subtotaal);
+        if(!invokedFromStorage) {
+            saveDataToStorage(linesToFile);
+            saveDataToCloud(groceryStore, products, prices, subtotaal);
+        }
     }
 
     private void saveDataToCloud(String store, String products, String prices, String subtotaal) {

@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.ColorRes;
 import android.support.annotation.MenuRes;
 import android.support.design.widget.Snackbar;
@@ -36,6 +37,9 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -601,6 +605,7 @@ public class ListFragment extends Fragment {
         }
 
         private void initializeData() {
+            final MainActivity mainActivity = (MainActivity)getActivity();
             receipts = new ArrayList<>();
 //            receipts.add(new ReceiptContent("AH", "01-01-2021", getString(R.string.products), "€2,33\n€3,75\n€11,22\n€13,77\n€2,33\n€3,75\n€11,22\n€13,77", "€100,00", true, 22));
 //            receipts.add(new ReceiptContent("Jumbo", "18-06-2011", "2x FANTA\n2x APPELS\n1x DURR\n1x CUTOFF", "€2,33\n€3,75\n€11,22\n€13,77", "€100,00", true, 50));
@@ -627,8 +632,30 @@ public class ListFragment extends Fragment {
 
                             receipts.add(new ReceiptContent(store, date, products, prices, subtotaal, false, 11));
                         }
-                    }else {
-                        Toast.makeText(getActivity(), "Nothing to show..", Toast.LENGTH_SHORT).show();
+                    } else {
+                        String path = Environment.getExternalStorageDirectory().toString() + "/Papurrless";
+                        File f = new File(path);
+                        File[] files = f.listFiles();
+
+                        if (files.length > 0) {
+                            for (int i = 0; i < files.length; i++) {
+                                if (files[i].getName().substring(0, 12).equals("scanned-data")) {
+                                    List<String> receiptData = new ArrayList();
+                                    try {
+                                        BufferedReader br = new BufferedReader(new FileReader(files[i]));
+                                        String line;
+                                        while ((line = br.readLine()) != null) {
+                                            receiptData.add(line);
+                                        }
+                                        mainActivity.processReceipt(receiptData, true);
+                                    } catch (Exception ex) {
+                                        ex.printStackTrace();
+                                    }
+                                }
+                            }
+                        } else {
+                            Toast.makeText(getActivity(), "No local receipt files found", Toast.LENGTH_SHORT).show();
+                        }
                     }
                 }
             });
