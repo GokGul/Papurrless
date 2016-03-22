@@ -269,13 +269,17 @@ public class MainActivity extends AppCompatActivity {
         switch (requestCode) {
             case TAKE_PICTURE:
                 if(resultCode == RESULT_OK) {
-                    saveImageToParse(data);
+                    if(user != null) {
+                        saveImageToParse(data);
+                    }
                 }
                 imageFilePath = getRealPathFromURI(imageUri);
                 break;
             case SELECT_FILE:
                 imageFilePath = getRealPathFromURI(imageUri);
-                createImageFromPath(imageFilePath);
+                if(user != null){
+                    createImageFromPath(imageFilePath);
+                }
                 break;
         }
         new AsyncProcessTask(this).execute(imageFilePath, outputPath);
