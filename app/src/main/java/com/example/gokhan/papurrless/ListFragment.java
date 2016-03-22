@@ -56,15 +56,6 @@ public class ListFragment extends Fragment {
 
     private static boolean premiumEnabled = false;
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if( requestCode == 1342 ) {
-            Bundle b = data.getExtras();
-            String toastTest = b.getString("totalprice");
-            Toast.makeText(getContext(), toastTest, Toast.LENGTH_SHORT).show();
-        }
-    }
-
     public ListFragment() {
     }
 
@@ -405,7 +396,7 @@ public class ListFragment extends Fragment {
                 editor.putExtra("totalprice", receipts.get(position).totalprice);
                 editor.putExtra("isFavorite", receipts.get(position).isFavorite);
                 editor.putExtra("receiptId", receipts.get(position).receiptId);
-                startActivityForResult(editor, 1342);
+                startActivity(editor);
             }
 
             public void openImage() {

@@ -29,7 +29,7 @@ public class EditorActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_editor);
         TextView dateDisplay = (TextView) findViewById(R.id.date);
-        Spinner marketSpinner = (Spinner) findViewById(R.id.supermarket);
+        marketSpinner = (Spinner) findViewById(R.id.supermarket);
         ArrayAdapter<CharSequence> adapter;
         productsEdit = (EditText) findViewById(R.id.editProducts);
         pricesEdit = (EditText) findViewById(R.id.editPrices);
@@ -67,8 +67,6 @@ public class EditorActivity extends AppCompatActivity {
 
     public void cancel(View view)
     {
-        Intent returnIntent = new Intent();
-        setResult(Activity.RESULT_CANCELED, returnIntent);
         finish();
     }
 
@@ -76,24 +74,31 @@ public class EditorActivity extends AppCompatActivity {
     {
         getAllStrings();
 
-        Bundle b = new Bundle();
-        b.putString("date", date);
-        b.putString("market", market);
-        b.putString("products", products);
-        b.putString("prices", prices);
-        b.putString("totalprice", totalprice);
-        b.putBoolean("isFavorite", isFavorite);
-        b.putInt("receiptId", receiptId);
+//        Bundle b = new Bundle();
+//        b.putString("date", date);
+//        b.putString("market", market);
+//        b.putString("products", products);
+//        b.putString("prices", prices);
+//        b.putString("totalprice", totalprice);
+//        b.putBoolean("isFavorite", isFavorite);
+//        b.putInt("receiptId", receiptId);
+//
+//        Intent returnIntent = new Intent();
+//        returnIntent.putExtras(b);
+//        setResult(1342, returnIntent);
+//        finish();
 
-        Intent returnIntent = new Intent();
-        returnIntent.putExtras(b);
-        setResult(1342, returnIntent);
-        finish();
+        //update het receipt in de storage (en evt. de cloud)
+
+        //restart de app:
+        Intent i = new Intent(this, MainActivity.class);
+        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(i);
     }
 
     public void getAllStrings()
     {
-        market = "ah doi"; //marketSpinner.getSelectedItem().toString();
+        market = marketSpinner.getSelectedItem().toString();
         products = productsEdit.getText().toString();
         prices = pricesEdit.getText().toString();
         totalprice = totalpriceEdit.getText().toString();
