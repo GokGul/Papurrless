@@ -622,7 +622,6 @@ public class ListFragment extends Fragment {
                 @Override
                 public void done(List<ParseObject> objects, ParseException e) {
                     if (objects.size() > 0) {
-                        System.out.println("list size: " + objects.size());
                         for (int i = 0; i < objects.size(); i++) {
                             String store = objects.get(i).get("store").toString();
                             String date = objects.get(i).get("date").toString();
@@ -630,8 +629,11 @@ public class ListFragment extends Fragment {
                             String prices = objects.get(i).get("prices").toString();
                             String subtotaal = objects.get(i).get("subtotaal").toString();
 
+                            System.out.println(store);
+
                             receipts.add(new ReceiptContent(store, date, products, prices, subtotaal, false, 11));
                         }
+                        adapter.notifyDataSetChanged();
                     } else {
                         String path = Environment.getExternalStorageDirectory().toString() + "/Papurrless";
                         File f = new File(path);
