@@ -30,6 +30,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.gokhan.papurrless.R;
+import com.parse.FindCallback;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
+import com.parse.ParseUser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -597,11 +602,25 @@ public class ListFragment extends Fragment {
 
         private void initializeData() {
             receipts = new ArrayList<>();
-            receipts.add(new ReceiptContent("AH", "01-01-2021", getString(R.string.products), "€2,33\n€3,75\n€11,22\n€13,77\n€2,33\n€3,75\n€11,22\n€13,77", "€100,00", true, 22));
-            receipts.add(new ReceiptContent("Jumbo", "18-06-2011", "2x FANTA\n2x APPELS\n1x DURR\n1x CUTOFF", "€2,33\n€3,75\n€11,22\n€13,77", "€100,00", true, 50));
-            receipts.add(new ReceiptContent("Spar", "01-01-2011", "2x COCA-COLA\n2x APPELS\n1x DURR\n1x CUTOFF", "€2,33\n€3,75\n€11,22\n€13,77", "€90,00", false, 100));
-            receipts.add(new ReceiptContent("Dirk", "01-01-2010", "2x COCA-COLA\n2x APPELS\n1x DURR\n1x CUTOFF", "€2,33\n€3,75\n€11,22\n€13,77", "€80,00", false, 33));
-            receipts.add(new ReceiptContent("DerpMarkt", "01-01-2009", "2x COCA-COLA\n2x APPELS\n1x DURR\n1x CUTOFF", "€2,33\n€3,75\n€11,22\n€13,77", "€100,00", false, 12));
+//            receipts.add(new ReceiptContent("AH", "01-01-2021", getString(R.string.products), "€2,33\n€3,75\n€11,22\n€13,77\n€2,33\n€3,75\n€11,22\n€13,77", "€100,00", true, 22));
+//            receipts.add(new ReceiptContent("Jumbo", "18-06-2011", "2x FANTA\n2x APPELS\n1x DURR\n1x CUTOFF", "€2,33\n€3,75\n€11,22\n€13,77", "€100,00", true, 50));
+//            receipts.add(new ReceiptContent("Spar", "01-01-2011", "2x COCA-COLA\n2x APPELS\n1x DURR\n1x CUTOFF", "€2,33\n€3,75\n€11,22\n€13,77", "€90,00", false, 100));
+//            receipts.add(new ReceiptContent("Dirk", "01-01-2010", "2x COCA-COLA\n2x APPELS\n1x DURR\n1x CUTOFF", "€2,33\n€3,75\n€11,22\n€13,77", "€80,00", false, 33));
+//            receipts.add(new ReceiptContent("DerpMarkt", "01-01-2009", "2x COCA-COLA\n2x APPELS\n1x DURR\n1x CUTOFF", "€2,33\n€3,75\n€11,22\n€13,77", "€100,00", false, 12));
+
+            ParseUser user = ParseUser.getCurrentUser();
+
+            ParseQuery<ParseObject> query = ParseQuery.getQuery("Image");
+            query.whereEqualTo("user", user);
+
+            query.findInBackground(new FindCallback<ParseObject>() {
+                @Override
+                public void done(List<ParseObject> objects, ParseException e) {
+                    for (int i=0;i<objects.size();i++) {
+                        receipts.add(new ReceiptContent(objects.get(i).get("store").toString(), objects.get(i).get("date").toString(), objects.get(i).get("products").toString(), objects.get(i).get("prices").toString(),objects.get(i).get("subtotaal").toString(), false, 11));
+                    }
+                }
+            });
         }
 
         @Override
