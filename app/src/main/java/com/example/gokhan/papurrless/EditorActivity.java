@@ -108,7 +108,7 @@ public class EditorActivity extends AppCompatActivity {
             ArrayList<String> data = new ArrayList();
 
             String path = Environment.getExternalStorageDirectory().toString() +
-                    "/Papurrless/scanned-data" + dateTime +  ".txt";
+                    "/Papurrless/scanned-data" + dateTime;
 
             File file = new File(path);
             file.delete();
@@ -118,7 +118,7 @@ public class EditorActivity extends AppCompatActivity {
             data.add(groceryStore);
             data.add("EUR");
 
-            for(int i = 0; (i<products.length-1 && i<prices.length-1); i++)
+            for(int i = 0; (i<products.length && i<prices.length); i++)
             {
                 data.add(products[i].trim() + prices[i].replaceAll("[^\\d,.]+", "").trim());
             }
