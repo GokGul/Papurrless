@@ -482,21 +482,8 @@ public class ListFragment extends Fragment {
 
             public void editReceipt() {
                 int position = getAdapterPosition();
-//                int receiptId = receiptsA.get(getAdapterPosition()).receiptId;
-//                int position = 0;
-//                for (int i = 0; i < receipts.size(); i++) {
-//                    if (receipts.get(i).checkId(receiptId))
-//                        position = i;
-//                }
                 Intent editor = new Intent(getActivity(), EditorActivity.class);
-//                editor.putExtra("date", receipts.get(position).date);
-//                editor.putExtra("market", receipts.get(position).market);
-//                editor.putExtra("products", receipts.get(position).products);
-//                editor.putExtra("prices", receipts.get(position).prices);
-//                editor.putExtra("totalprice", receipts.get(position).totalprice);
-//                editor.putExtra("isFavorite", receipts.get(position).isFavorite);
-//                editor.putExtra("receiptId", receipts.get(position).receiptId);
-                editor.putExtra("date", receiptsA.get(position).date);
+                editor.putExtra("date", receiptsA.get(position).dateTime);
                 editor.putExtra("market", receiptsA.get(position).market);
                 editor.putExtra("products", receiptsA.get(position).products);
                 editor.putExtra("prices", receiptsA.get(position).prices);
