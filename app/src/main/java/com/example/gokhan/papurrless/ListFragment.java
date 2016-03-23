@@ -39,8 +39,12 @@ import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -86,6 +90,7 @@ public class ListFragment extends Fragment {
     //These are the receipt previews
     class ReceiptContent {
         String market;
+        String dateTime;
         String date; //changes the toolbar color to match branding
         int marketColor;
         String products;
@@ -99,7 +104,13 @@ public class ListFragment extends Fragment {
 
         ReceiptContent(String market, String date, String products, String prices, String totalprice, boolean isFavorite, int receiptId) {
             this.market = market;
-            this.date = date;
+            this.dateTime = date;
+            if(date.length() >= 10) {
+                this.date = date.substring(0, 10);//without the time
+            }
+            else{
+                this.date = date;
+            }
             marketColor = getMarketColor(market);
             this.products = products;
             this.prices = prices;
@@ -361,6 +372,35 @@ public class ListFragment extends Fragment {
             public void favReceipt(int position) {
                 if (isFavoriteList)  //removes from fav list, changes checkbox in all list
                 {
+                    try {
+                        String dateTime = receiptsA.get(position).dateTime;
+                        String path = Environment.getExternalStorageDirectory().toString() +
+                                "/Papurrless/scanned-data" + dateTime;
+
+                        ArrayList<String> data = new ArrayList();
+                        File file = new File(path);
+                        FileInputStream fis = new FileInputStream(file);
+                        BufferedReader br = new BufferedReader(new InputStreamReader(fis));
+
+                        String line;
+                        while((line = br.readLine()) != null){
+                            if(!line.equals("isFavorite")) {
+                                data.add(line);
+                            }
+                        }
+                        file.delete();
+                        FileWriter fw = new FileWriter(file);
+                        BufferedWriter bw = new BufferedWriter(fw);
+                        for(String lines : data) {
+                            bw.write(lines + "\n");
+                        }
+                        bw.flush();
+                        bw.close();
+
+                    }
+                    catch(Exception e){
+                        e.printStackTrace();
+                    }
                     favOtherList(receiptsA.get(position).receiptId, position, isFavoriteList);
                     receiptsA.remove(position);
                     notifyItemRemoved(position);
@@ -368,14 +408,73 @@ public class ListFragment extends Fragment {
                     //update database with isFavorite = false
                 } else if (receiptsA.get(position).isFavorite)  //removes from fav list (other screen), updates view
                 {
+                    System.out.println("remove pls");
+                    try {
+                        String dateTime = receiptsA.get(position).dateTime;
+                        String path = Environment.getExternalStorageDirectory().toString() +
+                                "/Papurrless/scanned-data" + dateTime;
+
+                        ArrayList<String> data = new ArrayList();
+                        File file = new File(path);
+                        FileInputStream fis = new FileInputStream(file);
+                        BufferedReader br = new BufferedReader(new InputStreamReader(fis));
+
+                        String line;
+                        while((line = br.readLine()) != null){
+                            if(!line.equals("isFavorite")) {
+                                data.add(line);
+                            }
+                        }
+                        file.delete();
+                        FileWriter fw = new FileWriter(file);
+                        BufferedWriter bw = new BufferedWriter(fw);
+                        for(String lines : data) {
+                            bw.write(lines + "\n");
+                        }
+                        bw.flush();
+                        bw.close();
+
+                    }
+                    catch(Exception e){
+                        e.printStackTrace();
+                    }
                     delOtherList(receiptsA.get(position).receiptId);
-                    receiptsA.get(position).isFavorite = false;
+                    receipts.get(position).isFavorite = false;
                     notifyDataSetChanged();
                     //update database with isFavorite = false
                 } else    //adds to fav list, updates view
                 {
                     receiptsA.get(position).isFavorite = true;
                     favOtherList(receiptsA.get(position).receiptId, position, isFavoriteList);
+                    try {
+                        String dateTime = receiptsA.get(position).dateTime;
+                        String path = Environment.getExternalStorageDirectory().toString() +
+                                "/Papurrless/scanned-data" + dateTime;
+
+                        ArrayList<String> data = new ArrayList();
+                        File file = new File(path);
+                        FileInputStream fis = new FileInputStream(file);
+                        BufferedReader br = new BufferedReader(new InputStreamReader(fis));
+
+                        data.add("isFavorite");
+                        String line;
+                        while((line = br.readLine()) != null){
+                            data.add(line);
+                        }
+                        file.delete();
+                        FileWriter fw = new FileWriter(file);
+                        BufferedWriter bw = new BufferedWriter(fw);
+                        for(String lines : data) {
+                            bw.write(lines + "\n");
+                        }
+                        bw.flush();
+                        bw.close();
+
+                    }
+                    catch(Exception e){
+                        e.printStackTrace();
+                    }
+
                     notifyDataSetChanged();
                     //update database with isFavorite = true
                 }
@@ -416,6 +515,17 @@ public class ListFragment extends Fragment {
                 final ReceiptContent receiptBackup = receiptsA.get(position);
 
                 final int otherListPosition = delOtherList(receiptsA.get(position).receiptId);
+                try {
+                    String dateTime = receiptsA.get(position).dateTime;
+                    String path = Environment.getExternalStorageDirectory().toString() +
+                            "/Papurrless/scanned-data" + dateTime;
+                    File file = new File(path);
+                    file.delete();
+
+                }
+                catch(Exception e){
+                    e.printStackTrace();
+                }
                 receiptsA.remove(position);
                 notifyItemRemoved(position);
                 notifyItemRangeChanged(position, getItemCount());
@@ -571,7 +681,35 @@ public class ListFragment extends Fragment {
         }
 
         private void initializeData() {
+            final MainActivity mainActivity = (MainActivity)getActivity();
             receipts = new ArrayList<>();
+            String path = Environment.getExternalStorageDirectory().toString() + "/Papurrless";
+            File f = new File(path);
+            File[] files = f.listFiles();
+
+            if (files.length > 0) {
+                for (int i = 0; i < files.length; i++) {
+                    if (files[i].getName().substring(0, 12).equals("scanned-data")) {
+                        List<String> receiptData = new ArrayList();
+                        try {
+                            BufferedReader br = new BufferedReader(new FileReader(files[i]));
+                            String line;
+                            while ((line = br.readLine()) != null) {
+                                receiptData.add(line);
+                            }
+                            mainActivity.processReceipt(receiptData, true, files[i].getName().
+                                    substring(12, files[i].getName().length()));
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+                }
+            }
+        }
+
+        public void addReceipt(ReceiptContent newReceipt) {
+            adapter.receiptsA.add(0, newReceipt);
+            adapter.notifyDataSetChanged();
         }
 
         @Override
@@ -602,6 +740,7 @@ public class ListFragment extends Fragment {
             adapter.notifyItemRangeInserted(curSize, receipts.size() - 1);
         }
     }
+
 
 
     //This fragment holds all cards
@@ -656,7 +795,8 @@ public class ListFragment extends Fragment {
                                         while ((line = br.readLine()) != null) {
                                             receiptData.add(line);
                                         }
-                                        mainActivity.processReceipt(receiptData, true);
+                                        mainActivity.processReceipt(receiptData, true, files[i].getName().
+                                                substring(12, files[i].getName().length()));
                                     } catch (Exception ex) {
                                         ex.printStackTrace();
                                     }

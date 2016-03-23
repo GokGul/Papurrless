@@ -377,7 +377,7 @@ public class MainActivity extends AppCompatActivity {
                 fis.close();
             }
 
-            processReceipt(receiptLines, false);
+            processReceipt(receiptLines, false, "");
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -385,12 +385,13 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void processReceipt(List<String> lines, boolean invokedFromStorage){
+    public void processReceipt(List<String> lines, boolean invokedFromStorage, String date){
 
         String groceryStore = "";
         String products = "";
         String prices = "";
         String subtotaal = "";
+        boolean isFavorite = false;
         ArrayList<String> linesToFile = new ArrayList();
 
         boolean isGroceryStore = true;
@@ -398,8 +399,11 @@ public class MainActivity extends AppCompatActivity {
 
         for(String line : lines){
 
-
             String _value = null;
+            if(line.equals("isFavorite")){
+                isFavorite = true;
+                continue;
+            }
             if(groceryStore.equals("")) {
                 //when receipt data is loaded from abbyy api
                 if(line.length() > 4) {
@@ -458,7 +462,7 @@ public class MainActivity extends AppCompatActivity {
                         linesToFile.add(groceryStore);
                         isGroceryStore = false;
                         break;
-                    default:_value= "";
+                    default: continue;
                 }
             }
 
@@ -466,7 +470,7 @@ public class MainActivity extends AppCompatActivity {
             if(groceryStore.equals("AH") ||
                     groceryStore.equals("Jumbo")){
 
-                //go to next item in the map if the line matches EUR. on the AH receipts products appear right underneath this line
+                //go to next item in the list if the line matches EUR. on the AH receipts products appear right underneath this line
                 if(line.substring(0, line.length()).equals("EUR") ||
                         line.substring(0, line.length()).equals("AKKOORD")){
                     linesToFile.add(line);
@@ -492,10 +496,17 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
-        allFrag.addReceipt(allFrag.new ReceiptContent(groceryStore, getDate().substring(0, 10), products, prices, subtotaal, false, 666));
+
         if(!invokedFromStorage) {
+            allFrag.addReceipt(allFrag.new ReceiptContent(groceryStore, getDate(), products, prices, subtotaal, isFavorite, 666));
             saveDataToStorage(linesToFile);
             saveDataToCloud(groceryStore, products, prices, subtotaal);
+        }
+        else{
+            if(isFavorite){
+               favFrag.addReceipt(favFrag.new ReceiptContent(groceryStore, date, products, prices, subtotaal, isFavorite, 666));
+            }
+               allFrag.addReceipt(allFrag.new ReceiptContent(groceryStore, date, products, prices, subtotaal, isFavorite, 666));
         }
     }
 
