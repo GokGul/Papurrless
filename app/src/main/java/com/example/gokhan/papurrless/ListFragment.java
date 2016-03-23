@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.annotation.ColorRes;
 import android.support.annotation.MenuRes;
 import android.support.design.widget.Snackbar;
@@ -500,19 +501,25 @@ public class ListFragment extends Fragment {
 
             public void deleteReceipt(final int position) {
                 final ReceiptContent receiptBackup = receiptsA.get(position);
-
                 final int otherListPosition = delOtherList(receiptsA.get(position).receiptId);
+                String dateTime = receiptsA.get(position).dateTime;
+                String path = Environment.getExternalStorageDirectory().toString() +
+                        "/Papurrless/scanned-data" + dateTime;
+                final ArrayList<String> receiptData = new ArrayList();
+                final File backupFile = new File(path);
                 try {
-                    String dateTime = receiptsA.get(position).dateTime;
-                    String path = Environment.getExternalStorageDirectory().toString() +
-                            "/Papurrless/scanned-data" + dateTime;
                     File file = new File(path);
+                    BufferedReader br = new BufferedReader(new FileReader(file));
+                    String line;
+                    while ((line = br.readLine()) != null) {
+                        receiptData.add(line);
+                    }
                     file.delete();
-
                 }
                 catch(Exception e){
                     e.printStackTrace();
                 }
+
                 receiptsA.remove(position);
                 notifyItemRemoved(position);
                 notifyItemRangeChanged(position, getItemCount());
@@ -524,12 +531,26 @@ public class ListFragment extends Fragment {
                         .setAction(R.string.undo, new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
-                                receiptsA.add(position, receiptBackup);
-                                notifyItemInserted(position);
-                                rv.scrollToPosition(position);
-                                if (otherListPosition != -1)
-                                    undoOtherList(otherListPosition, receiptBackup);
-                                //update database again
+
+                                try {
+                                    backupFile.createNewFile();
+                                    FileWriter fw = new FileWriter(backupFile);
+                                    BufferedWriter bw = new BufferedWriter(fw);
+                                    for(String line : receiptData) {
+                                        bw.write(line + "\n");
+                                    }
+                                    bw.close();
+                                    receiptsA.add(position, receiptBackup);
+                                    notifyItemInserted(position);
+                                    rv.scrollToPosition(position);
+                                    if (otherListPosition != -1)
+                                        undoOtherList(otherListPosition, receiptBackup, backupFile);
+                                    //update database again
+                                    System.out.println(backupFile.getPath());
+                                }
+                                catch(Exception e){
+                                    e.printStackTrace();
+                                }
                             }
                         });
                 snackbar.show();
@@ -650,8 +671,14 @@ public class ListFragment extends Fragment {
         return position;
     }
 
-    public void undoOtherList(int position, ReceiptContent receiptBackup) {
+    public void undoOtherList(int position, ReceiptContent receiptBackup, File backupFile) {
         RVAdapter otherAdapter = otherFrag.adapter;
+        try {
+            backupFile.createNewFile();
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
         otherAdapter.receiptsA.add(position, receiptBackup);
         otherAdapter.notifyDataSetChanged();
     }
