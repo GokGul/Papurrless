@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Papurrless</string>
     <string name="action_login">Log in</string>
+    <string name="action_offline_files">Upload offline files</string>
     <string name="section_format">Hello World from section: %1$d</string>
     <string name="title">Title Text</string>
     <string name="description">Description text for you and your friends.</string>

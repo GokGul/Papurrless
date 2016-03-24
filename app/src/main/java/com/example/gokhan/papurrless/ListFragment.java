@@ -103,11 +103,12 @@ public class ListFragment extends Fragment {
         byte[] image;
         boolean isFavorite, isShort;
         String receiptId;  //this ID is used to keep track of which full receipt to open when pressed
+        String imagePath;
 
         int pricesPreviewDivider;
         int productsPreviewDivider;
 
-        ReceiptContent(byte[] image, String market, String date, String products, String prices, String totalprice, boolean isFavorite, String receiptId) {
+        ReceiptContent(byte[] image, String market, String date, String products, String prices, String totalprice, boolean isFavorite, String receiptId, String imagePath) {
             this.image = image;
             this.market = market;
             this.dateTime = date;
@@ -123,7 +124,7 @@ public class ListFragment extends Fragment {
             this.totalprice = totalprice;
             this.isFavorite = isFavorite;
             this.receiptId = receiptId;
-
+            this.imagePath = imagePath;
             pricesPreviewDivider = ordinalIndexOf(prices, '\n', 4);
             productsPreviewDivider = ordinalIndexOf(products, '\n', 4);
         }
@@ -785,7 +786,6 @@ public class ListFragment extends Fragment {
 
     //This fragment holds all cards
     public static class AllFragment extends ListFragment {
-
         byte[] imgg;
         public static ListFragment newInstance(int sectionNumber, boolean premium) {
             premiumEnabled = premium;
@@ -796,10 +796,12 @@ public class ListFragment extends Fragment {
             return fragment;
         }
 
+        final ParseUser user = ParseUser.getCurrentUser();
+
         private void initializeData() {
             final MainActivity mainActivity = (MainActivity)getActivity();
             receipts = new ArrayList<>();
-            final ParseUser user = ParseUser.getCurrentUser();
+
 
             ParseQuery<ParseObject> query = ParseQuery.getQuery("Image");
             query.whereEqualTo("User", user);
@@ -817,50 +819,99 @@ public class ListFragment extends Fragment {
                             final String subtotaal = objects.get(i).get("subtotaal").toString();
 
 
-
-                            ParseFile img = (ParseFile)objects.get(i).get("Image");
+                            ParseFile img = (ParseFile) objects.get(i).get("Image");
                             img.getDataInBackground(new GetDataCallback() {
                                 @Override
                                 public void done(final byte[] data, ParseException e) {
-                                    System.out.println("The data is:" + data);
                                     imgg = data;
-                                    receipts.add(new ReceiptContent(imgg, store, date, products, prices, subtotaal, false, objectId));
+                                    receipts.add(new ReceiptContent(imgg, store, date, products, prices, subtotaal, false, objectId, ""));
                                 }
                             });
-
-                            System.out.println(store);
-                            System.out.println("The image is: " + imgg);
 
                         }
                         adapter.notifyDataSetChanged();
                     } else {
-                        String path = Environment.getExternalStorageDirectory().toString() + "/Papurrless";
-                        File f = new File(path);
-                        File[] files = f.listFiles();
-
-                        if (files.length > 0) {
-                            for (int i = 0; i < files.length; i++) {
-                                if (files[i].getName().substring(0, 12).equals("scanned-data")) {
-                                    List<String> receiptData = new ArrayList();
-                                    try {
-                                        BufferedReader br = new BufferedReader(new FileReader(files[i]));
-                                        String line;
-                                        while ((line = br.readLine()) != null) {
-                                            receiptData.add(line);
-                                        }
-                                        mainActivity.processReceipt(null, receiptData, true, files[i].getName().
-                                                substring(12, files[i].getName().length()));
-                                    } catch (Exception ex) {
-                                        ex.printStackTrace();
-                                    }
-                                }
-                            }
-                        } else {
-                            Toast.makeText(getActivity(), "No local receipt files found", Toast.LENGTH_SHORT).show();
-                        }
+                        loadOfflineFiles(mainActivity);
                     }
                 }
             });
+        }
+
+        public void loadOfflineFiles(Activity activy){
+            MainActivity mainActivity = (MainActivity) activy;
+            String path = Environment.getExternalStorageDirectory().toString() + "/Papurrless";
+            File f = new File(path);
+            File[] files = f.listFiles();
+            List<File> storedFiles = new ArrayList();
+            if (files.length > 0) {
+                for (int i = 0; i < files.length; i++) {
+                    if (files[i].getName().substring(0, 12).equals("scanned-data")) {
+                        storedFiles.add(files[i]);
+                        List<String> receiptData = new ArrayList();
+                        try {
+                            BufferedReader br = new BufferedReader(new FileReader(files[i]));
+                            String line;
+                            while ((line = br.readLine()) != null) {
+                                receiptData.add(line);
+                            }
+                            mainActivity.processReceipt(null, receiptData, true, files[i].getName().
+                                    substring(12, files[i].getName().length()));
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+                }
+            } else {
+                Toast.makeText(getActivity(), "No local receipt files found", Toast.LENGTH_SHORT).show();
+            }
+            if(user != null) {
+                if (user.get("isPremium").toString().equals("true")) {
+                    prepareOfflineFiles(storedFiles, mainActivity);
+                } else {
+                    Toast.makeText(getActivity(), "Must be premium bitch", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
+
+        public void prepareOfflineFiles(final List<File> files, Activity activity){
+            final MainActivity mainActivity = (MainActivity) activity;
+            String path = Environment.getExternalStorageDirectory().toString() + "/Papurrless";
+            final List<File> storedFiles = files;
+            final List<File> toBeUploaded = new ArrayList();
+            System.out.println("Begin list size: " + storedFiles.size());
+            final ParseUser user = ParseUser.getCurrentUser();
+            for(final File file : storedFiles) {
+                ParseQuery<ParseObject> query = ParseQuery.getQuery("Image");
+                query.whereNotEqualTo("createdAt", file.getName().substring(12, file.getName().length()) );
+
+                query.findInBackground(new FindCallback<ParseObject>() {
+                    @Override
+                    public void done(List<ParseObject> objects, ParseException e) {
+                        System.out.println("file : " + file.getName());
+                        toBeUploaded.add(file);
+
+                                List<String> receiptData = new ArrayList();
+                                try {
+                                    BufferedReader br = new BufferedReader(new FileReader(file));
+                                    String line;
+                                    while ((line = br.readLine()) != null) {
+                                        receiptData.add(line);
+                                    }
+                                    mainActivity.setImageFilePath(file.getAbsolutePath());
+                                    mainActivity.processReceipt(mainActivity.getImageByte(file.getAbsolutePath()), receiptData, false, file.getName().
+                                            substring(12, file.getName().length()));
+                                    file.delete();
+                                } catch (Exception ex) {
+                                    ex.printStackTrace();
+                                }
+
+                    }
+                });
+            }
+
+            System.out.println("End list size: " + toBeUploaded.size());
+
+
         }
 
         @Override

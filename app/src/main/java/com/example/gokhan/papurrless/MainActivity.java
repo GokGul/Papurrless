@@ -46,6 +46,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.text.SimpleDateFormat;
@@ -79,6 +81,7 @@ public class MainActivity extends AppCompatActivity {
     private final int SELECT_FILE = 1;
 
     String imageFilePath;
+    byte[] image;
     private String outputPath = "result.txt";
 
     private boolean premiumEnabled = false;
@@ -163,11 +166,14 @@ public class MainActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.menu_main, menu);
 
         MenuItem loginMenuItem = menu.findItem(R.id.action_login);
+        MenuItem uploadItem = menu.findItem(R.id.action_offline_files);
 
         if(user != null)
         {
             loginMenuItem.setTitle(R.string.action_log_out);
         }
+
+
 
         return true;
     }
@@ -186,6 +192,8 @@ public class MainActivity extends AppCompatActivity {
             else
                 logIn();
             return true;
+        }else if(id == R.id.action_offline_files){
+            allFrag.loadOfflineFiles(this);
         }
 
         return super.onOptionsItemSelected(item);
@@ -281,8 +289,10 @@ public class MainActivity extends AppCompatActivity {
                 }
                 break;
         }
+
         new AsyncProcessTask(this).execute(imageFilePath, outputPath);
     }
+
 
     //----------------------------------------
     /**
@@ -519,18 +529,22 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if(!invokedFromStorage) {
-            allFrag.addReceipt(allFrag.new ReceiptContent(imageOut, groceryStore, getDate(), products, prices, subtotaal, isFavorite, ""));
+            allFrag.addReceipt(allFrag.new ReceiptContent(imageOut, groceryStore, getDate(), products, prices, subtotaal, isFavorite, "", imageFilePath));
             saveDataToStorage(linesToFile);
             saveDataToCloud(groceryStore, products, prices, subtotaal);
         }
         else{
             if(isFavorite){
-               favFrag.addReceipt(favFrag.new ReceiptContent(imageOut, groceryStore, date, products, prices, subtotaal, isFavorite, ""));
+               favFrag.addReceipt(favFrag.new ReceiptContent(imageOut, groceryStore, date, products, prices, subtotaal, isFavorite, "", imageFilePath));
             }
-               allFrag.addReceipt(allFrag.new ReceiptContent(imageOut, groceryStore, date, products, prices, subtotaal, isFavorite, ""));
+               allFrag.addReceipt(allFrag.new ReceiptContent(imageOut, groceryStore, date, products, prices, subtotaal, isFavorite, "", imageFilePath));
         }
     }
 
+
+    public void setImageFilePath(String path){
+        imageFilePath = path;
+    }
     private void saveDataToCloud(String store, String products, String prices, String subtotaal) {
 
         if(user.get("isPremium").toString().equals("true")){
