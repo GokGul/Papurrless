@@ -799,7 +799,7 @@ public class ListFragment extends Fragment {
         private void initializeData() {
             final MainActivity mainActivity = (MainActivity)getActivity();
             receipts = new ArrayList<>();
-            ParseUser user = ParseUser.getCurrentUser();
+            final ParseUser user = ParseUser.getCurrentUser();
 
             ParseQuery<ParseObject> query = ParseQuery.getQuery("Image");
             query.whereEqualTo("User", user);
