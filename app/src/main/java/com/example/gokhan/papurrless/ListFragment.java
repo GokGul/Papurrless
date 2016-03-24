@@ -807,7 +807,7 @@ public class ListFragment extends Fragment {
             query.findInBackground(new FindCallback<ParseObject>() {
                 @Override
                 public void done(List<ParseObject> objects, ParseException e) {
-                    if (objects.size() > 0) {
+                    if (objects.size() > 0 && user.get("isPremium").toString().equals("true")) {
                         for (int i = 0; i < objects.size(); i++) {
                             final String objectId = objects.get(i).getObjectId();
                             final String store = objects.get(i).get("store").toString();
