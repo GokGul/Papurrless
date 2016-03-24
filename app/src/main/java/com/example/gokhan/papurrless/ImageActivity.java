@@ -17,8 +17,7 @@ public class ImageActivity extends AppCompatActivity {
     }
 
     public void showImage(){
-        byte[] img = getIntent().getExtras().getByteArray("image");
-        System.out.println(img);
+        byte[] img = GlobalImage.img;
         Bitmap bMap = BitmapFactory.decodeByteArray(img, 0, img.length);
         imageView.setImageBitmap(bMap);
     }

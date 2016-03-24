@@ -515,15 +515,15 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if(!invokedFromStorage) {
-            allFrag.addReceipt(allFrag.new ReceiptContent(imageOut, groceryStore, getDate(), products, prices, subtotaal, isFavorite, 666));
+            allFrag.addReceipt(allFrag.new ReceiptContent(imageOut, groceryStore, getDate(), products, prices, subtotaal, isFavorite, ""));
             saveDataToStorage(linesToFile);
             saveDataToCloud(groceryStore, products, prices, subtotaal);
         }
         else{
             if(isFavorite){
-               favFrag.addReceipt(favFrag.new ReceiptContent(imageOut, groceryStore, date, products, prices, subtotaal, isFavorite, 666));
+               favFrag.addReceipt(favFrag.new ReceiptContent(imageOut, groceryStore, date, products, prices, subtotaal, isFavorite, ""));
             }
-               allFrag.addReceipt(allFrag.new ReceiptContent(imageOut, groceryStore, date, products, prices, subtotaal, isFavorite, 666));
+               allFrag.addReceipt(allFrag.new ReceiptContent(imageOut, groceryStore, date, products, prices, subtotaal, isFavorite, ""));
         }
     }
 
