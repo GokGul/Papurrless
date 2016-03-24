@@ -39,6 +39,7 @@ import com.parse.ParseFile;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
@@ -372,7 +373,7 @@ public class MainActivity extends AppCompatActivity {
                 fis.close();
             }
 
-            processReceipt(receiptLines, false, "");
+            processReceipt(null, receiptLines, false, "");
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -380,8 +381,29 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void processReceipt(List<String> lines, boolean invokedFromStorage, String date){
+    public byte[] getImageByte(String imageFilePath){
+        File file = new File(imageFilePath);
+        int size = (int) file.length();
+        byte[] imageByte = new byte[size];
+        try {
+            BufferedInputStream buf = new BufferedInputStream(new FileInputStream(file));
+            buf.read(imageByte, 0, imageByte.length);
+            buf.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return imageByte;
+    }
 
+    public void processReceipt(byte[] imageIn, List<String> lines, boolean invokedFromStorage, String date){
+
+        byte[] imageOut;
+        if(imageIn == null && date.length() == 0) {
+            imageOut = getImageByte(imageFilePath);
+        }
+        else{
+            imageOut = imageIn;
+        }
         String groceryStore = "";
         String products = "";
         String prices = "";
@@ -493,15 +515,15 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if(!invokedFromStorage) {
-            allFrag.addReceipt(allFrag.new ReceiptContent(groceryStore, getDate(), products, prices, subtotaal, isFavorite, 666));
+            allFrag.addReceipt(allFrag.new ReceiptContent(imageOut, groceryStore, getDate(), products, prices, subtotaal, isFavorite, 666));
             saveDataToStorage(linesToFile);
             saveDataToCloud(groceryStore, products, prices, subtotaal);
         }
         else{
             if(isFavorite){
-               favFrag.addReceipt(favFrag.new ReceiptContent(groceryStore, date, products, prices, subtotaal, isFavorite, 666));
+               favFrag.addReceipt(favFrag.new ReceiptContent(imageOut, groceryStore, date, products, prices, subtotaal, isFavorite, 666));
             }
-               allFrag.addReceipt(allFrag.new ReceiptContent(groceryStore, date, products, prices, subtotaal, isFavorite, 666));
+               allFrag.addReceipt(allFrag.new ReceiptContent(imageOut, groceryStore, date, products, prices, subtotaal, isFavorite, 666));
         }
     }
 

@@ -55,6 +55,7 @@
         <activity
             android:name=".EditorActivity"
             android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".ImageActivity"></activity>
     </application>
 
 </manifest>

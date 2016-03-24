@@ -34,7 +34,10 @@ import android.widget.Toast;
 
 import com.example.gokhan.papurrless.R;
 import com.parse.FindCallback;
+import com.parse.GetDataCallback;
+import com.parse.Parse;
 import com.parse.ParseException;
+import com.parse.ParseFile;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
@@ -97,13 +100,15 @@ public class ListFragment extends Fragment {
         String products;
         String prices;
         String totalprice;
+        byte[] image;
         boolean isFavorite, isShort;
         int receiptId;  //this ID is used to keep track of which full receipt to open when pressed
 
         int pricesPreviewDivider;
         int productsPreviewDivider;
 
-        ReceiptContent(String market, String date, String products, String prices, String totalprice, boolean isFavorite, int receiptId) {
+        ReceiptContent(byte[] image, String market, String date, String products, String prices, String totalprice, boolean isFavorite, int receiptId) {
+            this.image = image;
             this.market = market;
             this.dateTime = date;
             if(date.length() >= 10) {
@@ -355,7 +360,7 @@ public class ListFragment extends Fragment {
                 } else if (v.getId() == delete.getId()) {
                     deleteReceipt(getAdapterPosition());
                 } else if (v.getId() == image.getId()) {
-                    openImage();
+                    openImage(getAdapterPosition());
                 }
             }
 
@@ -494,7 +499,14 @@ public class ListFragment extends Fragment {
                 startActivity(editor);
             }
 
-            public void openImage() {
+            public void openImage(final int position) {
+
+                final ReceiptContent selectedReceipt = receiptsA.get(position);
+                Intent main = new Intent(getActivity(), ImageActivity.class);
+                System.out.println("The selected image: "+selectedReceipt.image);
+                main.putExtra("image", selectedReceipt.image);
+                startActivity(main);
+
                 Toast.makeText(itemView.getContext(), "OPEN IMAGE", Toast.LENGTH_SHORT).show();
                 //open the original photo
             }
@@ -557,7 +569,7 @@ public class ListFragment extends Fragment {
             }
         }
 
-        public class FullReceipt {
+         public class FullReceipt {
             int receiptPos;
             CardView cv;
             TextView productsRest;
@@ -565,7 +577,7 @@ public class ListFragment extends Fragment {
             TextView totalPrice;
             ImageView gradientCutoff;
             Toolbar bottomToolbar;
-            ReceiptViewHolder receiptViewHolder;
+            final ReceiptViewHolder receiptViewHolder;
 
             FullReceipt(ReceiptViewHolder rvh, int receiptId, TextView priRest, TextView proRest) {
                 cv = rvh.cv;
@@ -711,7 +723,7 @@ public class ListFragment extends Fragment {
                             while ((line = br.readLine()) != null) {
                                 receiptData.add(line);
                             }
-                            mainActivity.processReceipt(receiptData, true, files[i].getName().
+                            mainActivity.processReceipt(null, receiptData, true, files[i].getName().
                                     substring(12, files[i].getName().length()));
                         } catch (Exception ex) {
                             ex.printStackTrace();
@@ -760,6 +772,7 @@ public class ListFragment extends Fragment {
     //This fragment holds all cards
     public static class AllFragment extends ListFragment {
 
+        byte[] imgg;
         public static ListFragment newInstance(int sectionNumber, boolean premium) {
             premiumEnabled = premium;
             ListFragment fragment = new AllFragment();
@@ -772,7 +785,6 @@ public class ListFragment extends Fragment {
         private void initializeData() {
             final MainActivity mainActivity = (MainActivity)getActivity();
             receipts = new ArrayList<>();
-
             ParseUser user = ParseUser.getCurrentUser();
 
             ParseQuery<ParseObject> query = ParseQuery.getQuery("Image");
@@ -783,15 +795,27 @@ public class ListFragment extends Fragment {
                 public void done(List<ParseObject> objects, ParseException e) {
                     if (objects.size() > 0) {
                         for (int i = 0; i < objects.size(); i++) {
-                            String store = objects.get(i).get("store").toString();
-                            String date = objects.get(i).get("date").toString();
-                            String products = objects.get(i).get("products").toString();
-                            String prices = objects.get(i).get("prices").toString();
-                            String subtotaal = objects.get(i).get("subtotaal").toString();
+                            final String store = objects.get(i).get("store").toString();
+                            final String date = objects.get(i).get("date").toString();
+                            final String products = objects.get(i).get("products").toString();
+                            final String prices = objects.get(i).get("prices").toString();
+                            final String subtotaal = objects.get(i).get("subtotaal").toString();
+
+
+
+                            ParseFile img = (ParseFile)objects.get(i).get("Image");
+                            img.getDataInBackground(new GetDataCallback() {
+                                @Override
+                                public void done(final byte[] data, ParseException e) {
+                                    System.out.println("The data is:" + data);
+                                    imgg = data;
+                                    adapter.receiptsA.add(new ReceiptContent(imgg, store, date, products, prices, subtotaal, false, 11));
+                                }
+                            });
 
                             System.out.println(store);
+                            System.out.println("The image is: " + imgg);
 
-                            receipts.add(new ReceiptContent(store, date, products, prices, subtotaal, false, 11));
                         }
                         adapter.notifyDataSetChanged();
                     } else {
@@ -809,7 +833,7 @@ public class ListFragment extends Fragment {
                                         while ((line = br.readLine()) != null) {
                                             receiptData.add(line);
                                         }
-                                        mainActivity.processReceipt(receiptData, true, files[i].getName().
+                                        mainActivity.processReceipt(null, receiptData, true, files[i].getName().
                                                 substring(12, files[i].getName().length()));
                                     } catch (Exception ex) {
                                         ex.printStackTrace();
