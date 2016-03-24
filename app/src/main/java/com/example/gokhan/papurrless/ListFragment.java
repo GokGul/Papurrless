@@ -312,6 +312,8 @@ public class ListFragment extends Fragment {
         }
 
         public class ReceiptViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+            ParseUser user = ParseUser.getCurrentUser();
+
             CardView cv;
             Toolbar toolbar;
             TextView products;
@@ -360,7 +362,11 @@ public class ListFragment extends Fragment {
                 } else if (v.getId() == delete.getId()) {
                     deleteReceipt(getAdapterPosition());
                 } else if (v.getId() == image.getId()) {
-                    openImage(getAdapterPosition());
+                    if(user.get("isPremium") != null){
+                        openImage(getAdapterPosition());
+                    }else{
+                        Toast.makeText(getContext(), "This is a premium function.", Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
 
