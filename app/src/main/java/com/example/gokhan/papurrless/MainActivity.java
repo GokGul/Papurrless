@@ -265,7 +265,9 @@ public class MainActivity extends AppCompatActivity {
             case TAKE_PICTURE:
                 if(resultCode == RESULT_OK) {
                     if(user != null) {
-                        saveImageToParse(data);
+                        if(user.get("isPremium").toString().equals("true")){
+                            saveImageToParse(data);
+                        }
                     }
                 }
                 imageFilePath = getRealPathFromURI(imageUri);
@@ -273,7 +275,9 @@ public class MainActivity extends AppCompatActivity {
             case SELECT_FILE:
                 imageFilePath = getRealPathFromURI(imageUri);
                 if(user != null){
-                    createImageFromPath(imageFilePath);
+                    if(user.get("isPremium").toString().equals("true")) {
+                        createImageFromPath(imageFilePath);
+                    }
                 }
                 break;
         }
@@ -529,16 +533,19 @@ public class MainActivity extends AppCompatActivity {
 
     private void saveDataToCloud(String store, String products, String prices, String subtotaal) {
 
-        if(store.equals("") || products.equals("") || prices.equals("") || subtotaal.equals("")){
-            Toast.makeText(MainActivity.this, "Something went wrong, please try again..", Toast.LENGTH_SHORT).show();
+        if(user.get("isPremium").toString().equals("true")){
+            if(store.isEmpty() || products.isEmpty() || prices.isEmpty() || subtotaal.isEmpty()){
+                Toast.makeText(MainActivity.this, "Something went wrong, please try again..", Toast.LENGTH_SHORT).show();
+            }else{
+                img.put("store", store);
+                img.put("products", products);
+                img.put("prices", prices);
+                img.put("subtotaal", subtotaal);
+                img.put("date", getDate());
+                img.saveInBackground();
+            }
         }else{
-            img.put("store", store);
-            img.put("products", products);
-            img.put("prices", prices);
-            img.put("subtotaal", subtotaal);
-            img.put("date", getDate());
-//        img.put("data", data);
-            img.saveInBackground();
+            Toast.makeText(MainActivity.this, "No cloud functions, sry!", Toast.LENGTH_SHORT).show();
         }
     }
 
