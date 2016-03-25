@@ -35,9 +35,11 @@ import android.widget.Toast;
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -81,7 +83,6 @@ public class MainActivity extends AppCompatActivity {
     private final int SELECT_FILE = 1;
 
     String imageFilePath;
-    byte[] image;
     private String outputPath = "result.txt";
 
     private boolean premiumEnabled = false;
@@ -193,24 +194,21 @@ public class MainActivity extends AppCompatActivity {
                 logIn();
             return true;
         }else if(id == R.id.action_offline_files){
-            allFrag.loadOfflineFiles(this);
+            allFrag.loadOfflineFiles(this, false);
         }
 
         return super.onOptionsItemSelected(item);
     }
 
-    public void logIn()
-    {
+    public void logIn() {
         Intent intent = new Intent(MainActivity.this, LoginActivity.class);
         startActivity(intent);
     }
 
-    public void logOut()
-    {
+    public void logOut() {
+
         user.logOut();
-
         Toast.makeText(this, R.string.toast_logged_out, Toast.LENGTH_SHORT).show();
-
         this.recreate();
     }
 
@@ -387,7 +385,7 @@ public class MainActivity extends AppCompatActivity {
                 fis.close();
             }
 
-            processReceipt(null, receiptLines, false, "");
+            processReceipt(null, receiptLines, false, false, "");
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -396,27 +394,36 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public byte[] getImageByte(String imageFilePath){
-        File file = new File(imageFilePath);
-        int size = (int) file.length();
-        byte[] imageByte = new byte[size];
-        try {
+        try{
+            File file = new File(imageFilePath);
+            int size = (int) file.length();
+            byte[] imageByte = new byte[size];
             BufferedInputStream buf = new BufferedInputStream(new FileInputStream(file));
             buf.read(imageByte, 0, imageByte.length);
             buf.close();
+            return imageByte;
         } catch (Exception e) {
             e.printStackTrace();
+            return null;
         }
-        return imageByte;
     }
 
-    public void processReceipt(byte[] imageIn, List<String> lines, boolean invokedFromStorage, String date){
+    public void processReceipt(byte[] imageIn, List<String> lines, boolean invokedFromStorage, boolean uploadToCloud, String date){
 
         byte[] imageOut;
+        //invoked after taking a picture
         if(imageIn == null && date.length() == 0) {
             imageOut = getImageByte(imageFilePath);
         }
         else{
             imageOut = imageIn;
+        }
+        String newDate;
+        if(date.isEmpty()){
+            newDate = getDate();
+        }
+        else{
+            newDate = date.substring(0, date.length());
         }
         String groceryStore = "";
         String products = "";
@@ -497,7 +504,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
-            //for Albert Heijn receipts only!"
             if(groceryStore.equals("AH") ||
                     groceryStore.equals("Jumbo")){
 
@@ -529,9 +535,11 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if(!invokedFromStorage) {
-            allFrag.addReceipt(allFrag.new ReceiptContent(imageOut, groceryStore, getDate(), products, prices, subtotaal, isFavorite, "", imageFilePath));
-            saveDataToStorage(linesToFile);
-            saveDataToCloud(groceryStore, products, prices, subtotaal);
+            if(!uploadToCloud) {
+                allFrag.addReceipt(allFrag.new ReceiptContent(imageOut, groceryStore, newDate, products, prices, subtotaal, isFavorite, "", imageFilePath));
+                saveDataToStorage(linesToFile);
+            }
+            saveDataToCloud(groceryStore, products, prices, subtotaal, newDate);
         }
         else{
             if(isFavorite){
@@ -545,18 +553,32 @@ public class MainActivity extends AppCompatActivity {
     public void setImageFilePath(String path){
         imageFilePath = path;
     }
-    private void saveDataToCloud(String store, String products, String prices, String subtotaal) {
+    private void saveDataToCloud(String store, String products, String prices, String subtotaal, String date) {
 
         if(user.get("isPremium").toString().equals("true")){
             if(store.isEmpty() || products.isEmpty() || prices.isEmpty() || subtotaal.isEmpty()){
-                Toast.makeText(MainActivity.this, "Something went wrong, please try again..", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "Cannot upload empty values!", Toast.LENGTH_SHORT).show();
             }else{
+                if(img == null){
+                    img = new ParseObject("Image");
+                }
                 img.put("store", store);
                 img.put("products", products);
                 img.put("prices", prices);
                 img.put("subtotaal", subtotaal);
-                img.put("date", getDate());
-                img.saveInBackground();
+                img.put("date", date);
+                img.saveInBackground(new SaveCallback(){
+                    @Override
+                    public void done(ParseException e) {
+                        if(e != null) {
+                            Toast.makeText(MainActivity.this, "Failed to upload data, try again", Toast.LENGTH_SHORT).show();
+                            e.printStackTrace();
+                        }
+                        else{
+                            Toast.makeText(MainActivity.this, "Premium: Receipt got uploaded to the cloud!", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
             }
         }else{
             Toast.makeText(MainActivity.this, "No cloud functions, sry!", Toast.LENGTH_SHORT).show();
