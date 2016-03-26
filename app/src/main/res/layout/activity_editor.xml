@@ -97,7 +97,7 @@
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:inputType="numberDecimal"
+        android:inputType="text"
         android:ems="10"
         android:id="@+id/editTotalPrice"
         android:layout_above="@+id/bottom_buttons_container"
