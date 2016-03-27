@@ -292,14 +292,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    //----------------------------------------
-    /**
-     * This method is used to get real path of file from from uri
-     *
-     * @param imageUri
-     * @return String
-     */
-    //----------------------------------------
     public String getRealPathFromURI(Uri imageUri)
     {
         try
@@ -385,7 +377,7 @@ public class MainActivity extends AppCompatActivity {
                 fis.close();
             }
 
-            processReceipt(null, receiptLines, false, false, "");
+            processReceipt(null, receiptLines, false, true, "");
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -408,11 +400,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void processReceipt(byte[] imageIn, List<String> lines, boolean invokedFromStorage, boolean uploadToCloud, String date){
+    public void processReceipt(byte[] imageIn, List<String> lines, boolean invokedFromStorage, boolean saveToStorage, String date){
 
         byte[] imageOut;
         //invoked after taking a picture
-        if(imageIn == null && date.length() == 0) {
+        if(imageIn == null && date.length() == 0 && imageFilePath != null) {
             imageOut = getImageByte(imageFilePath);
         }
         else{
@@ -519,6 +511,8 @@ public class MainActivity extends AppCompatActivity {
                     String _product = line.replaceAll("[^A-Za-z]", "") + "\n";
                     //retains the digits, dots and commas
                     String _price = line.replaceAll("[^\\d,.]+", " ") + "\n";
+                    //replace all dots with commas
+                    _price = _price.replace(".",",");
 
                     String _subTotaal = _product.trim();
                     linesToFile.add(line);
@@ -535,11 +529,11 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if(!invokedFromStorage) {
-            if(!uploadToCloud) {
-                allFrag.addReceipt(allFrag.new ReceiptContent(imageOut, groceryStore, newDate, products, prices, subtotaal, isFavorite, "", imageFilePath));
+            if(saveToStorage) {
                 saveDataToStorage(linesToFile);
             }
-            saveDataToCloud(groceryStore, products, prices, subtotaal, newDate);
+            allFrag.addReceipt(allFrag.new ReceiptContent(imageOut, groceryStore, newDate, products, prices, subtotaal, isFavorite, "", imageFilePath));
+            saveDataToCloud(groceryStore, products, prices, subtotaal, newDate, isFavorite);
         }
         else{
             if(isFavorite){
@@ -553,7 +547,7 @@ public class MainActivity extends AppCompatActivity {
     public void setImageFilePath(String path){
         imageFilePath = path;
     }
-    private void saveDataToCloud(String store, String products, String prices, String subtotaal, String date) {
+    private void saveDataToCloud(String store, String products, String prices, String subtotaal, String date, boolean isFavorite) {
 
         if(user.get("isPremium").toString().equals("true")){
             if(store.isEmpty() || products.isEmpty() || prices.isEmpty() || subtotaal.isEmpty()){
@@ -561,27 +555,29 @@ public class MainActivity extends AppCompatActivity {
             }else{
                 if(img == null){
                     img = new ParseObject("Image");
+                    img.put("User", user);
                 }
                 img.put("store", store);
                 img.put("products", products);
                 img.put("prices", prices);
                 img.put("subtotaal", subtotaal);
                 img.put("date", date);
+                img.put("isFave", isFavorite);
                 img.saveInBackground(new SaveCallback(){
                     @Override
                     public void done(ParseException e) {
-                        if(e != null) {
-                            Toast.makeText(MainActivity.this, "Failed to upload data, try again", Toast.LENGTH_SHORT).show();
-                            e.printStackTrace();
+                        if(e == null) {
+                            Toast.makeText(MainActivity.this, "Premium: Receipt got uploaded to the cloud!", Toast.LENGTH_SHORT).show();
                         }
                         else{
-                            Toast.makeText(MainActivity.this, "Premium: Receipt got uploaded to the cloud!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(MainActivity.this, "Failed to upload data, try again", Toast.LENGTH_SHORT).show();
+                            e.printStackTrace();
                         }
                     }
                 });
             }
         }else{
-            Toast.makeText(MainActivity.this, "No cloud functions, sry!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(MainActivity.this, "This is a premium feature", Toast.LENGTH_SHORT).show();
         }
     }
 

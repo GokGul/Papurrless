@@ -51,6 +51,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -391,34 +392,50 @@ public class ListFragment extends Fragment {
             public void favReceipt(int position) {
                 if (isFavoriteList)  //removes from fav list, changes checkbox in all list
                 {
-                    try {
+                    if(user != null  && user.get("isPremium").toString().equals("true")){
                         String dateTime = receiptsA.get(position).dateTime;
-                        String path = Environment.getExternalStorageDirectory().toString() +
-                                "/Papurrless/scanned-data" + dateTime;
-
-                        ArrayList<String> data = new ArrayList();
-                        File file = new File(path);
-                        FileInputStream fis = new FileInputStream(file);
-                        BufferedReader br = new BufferedReader(new InputStreamReader(fis));
-
-                        String line;
-                        while((line = br.readLine()) != null){
-                            if(!line.equals("isFavorite")) {
-                                data.add(line);
+                        ParseQuery<ParseObject> query = ParseQuery.getQuery("Image");
+                        query.whereEqualTo("User", user);
+                        query.whereEqualTo("date", dateTime);
+                        query.findInBackground(new FindCallback<ParseObject>() {
+                            @Override
+                            public void done(List<ParseObject> objects, ParseException e) {
+                                for(ParseObject receipt : objects){
+                                    receipt.put("isFave", false);
+                                    receipt.saveInBackground();
+                                }
                             }
-                        }
-                        file.delete();
-                        FileWriter fw = new FileWriter(file);
-                        BufferedWriter bw = new BufferedWriter(fw);
-                        for(String lines : data) {
-                            bw.write(lines + "\n");
-                        }
-                        bw.flush();
-                        bw.close();
-
+                        });
                     }
-                    catch(Exception e){
-                        e.printStackTrace();
+                    else{
+                        try {
+                            String dateTime = receiptsA.get(position).dateTime;
+                            String path = Environment.getExternalStorageDirectory().toString() +
+                                    "/Papurrless/scanned-data" + dateTime;
+
+                            ArrayList<String> data = new ArrayList();
+                            File file = new File(path);
+                            FileInputStream fis = new FileInputStream(file);
+                            BufferedReader br = new BufferedReader(new InputStreamReader(fis));
+
+                            String line;
+                            while ((line = br.readLine()) != null) {
+                                if (!line.equals("isFavorite")) {
+                                    data.add(line);
+                                }
+                            }
+                            file.delete();
+                            FileWriter fw = new FileWriter(file);
+                            BufferedWriter bw = new BufferedWriter(fw);
+                            for (String lines : data) {
+                                bw.write(lines + "\n");
+                            }
+                            bw.flush();
+                            bw.close();
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
                     favOtherList(receiptsA.get(position).receiptId, position, isFavoriteList);
                     receiptsA.remove(position);
@@ -427,34 +444,51 @@ public class ListFragment extends Fragment {
                     //update database with isFavorite = false
                 } else if (receiptsA.get(position).isFavorite)  //removes from fav list (other screen), updates view
                 {
-                    try {
+                    if(user != null  && user.get("isPremium").toString().equals("true")){
                         String dateTime = receiptsA.get(position).dateTime;
-                        String path = Environment.getExternalStorageDirectory().toString() +
-                                "/Papurrless/scanned-data" + dateTime;
-
-                        ArrayList<String> data = new ArrayList();
-                        File file = new File(path);
-                        FileInputStream fis = new FileInputStream(file);
-                        BufferedReader br = new BufferedReader(new InputStreamReader(fis));
-
-                        String line;
-                        while((line = br.readLine()) != null){
-                            if(!line.equals("isFavorite")) {
-                                data.add(line);
+                        ParseQuery<ParseObject> query = ParseQuery.getQuery("Image");
+                        query.whereEqualTo("User", user);
+                        query.whereEqualTo("date", dateTime);
+                        query.findInBackground(new FindCallback<ParseObject>() {
+                            @Override
+                            public void done(List<ParseObject> objects, ParseException e) {
+                                for(ParseObject receipt : objects){
+                                    receipt.put("isFave", false);
+                                    receipt.saveInBackground();
+                                }
                             }
-                        }
-                        file.delete();
-                        FileWriter fw = new FileWriter(file);
-                        BufferedWriter bw = new BufferedWriter(fw);
-                        for(String lines : data) {
-                            bw.write(lines + "\n");
-                        }
-                        bw.flush();
-                        bw.close();
-
+                        });
                     }
-                    catch(Exception e){
-                        e.printStackTrace();
+                    else{
+                        try {
+                            String dateTime = receiptsA.get(position).dateTime;
+                            String path = Environment.getExternalStorageDirectory().toString() +
+                                    "/Papurrless/scanned-data" + dateTime;
+
+                            ArrayList<String> data = new ArrayList();
+                            File file = new File(path);
+                            FileInputStream fis = new FileInputStream(file);
+                            BufferedReader br = new BufferedReader(new InputStreamReader(fis));
+
+                            String line;
+                            while((line = br.readLine()) != null){
+                                if(!line.equals("isFavorite")) {
+                                    data.add(line);
+                                }
+                            }
+                            file.delete();
+                            FileWriter fw = new FileWriter(file);
+                            BufferedWriter bw = new BufferedWriter(fw);
+                            for(String lines : data) {
+                                bw.write(lines + "\n");
+                            }
+                            bw.flush();
+                            bw.close();
+
+                        }
+                        catch(Exception e){
+                            e.printStackTrace();
+                        }
                     }
                     delOtherList(receiptsA.get(position).receiptId);
                     receipts.get(position).isFavorite = false;
@@ -462,37 +496,54 @@ public class ListFragment extends Fragment {
                     //update database with isFavorite = false
                 } else    //adds to fav list, updates view
                 {
+
                     receiptsA.get(position).isFavorite = true;
                     favOtherList(receiptsA.get(position).receiptId, position, isFavoriteList);
-                    try {
+                    if(user != null  && user.get("isPremium").toString().equals("true")){
                         String dateTime = receiptsA.get(position).dateTime;
-                        String path = Environment.getExternalStorageDirectory().toString() +
-                                "/Papurrless/scanned-data" + dateTime;
-
-                        ArrayList<String> data = new ArrayList();
-                        File file = new File(path);
-                        FileInputStream fis = new FileInputStream(file);
-                        BufferedReader br = new BufferedReader(new InputStreamReader(fis));
-
-                        data.add("isFavorite");
-                        String line;
-                        while((line = br.readLine()) != null){
-                            data.add(line);
-                        }
-                        file.delete();
-                        FileWriter fw = new FileWriter(file);
-                        BufferedWriter bw = new BufferedWriter(fw);
-                        for(String lines : data) {
-                            bw.write(lines + "\n");
-                        }
-                        bw.flush();
-                        bw.close();
+                        ParseQuery<ParseObject> query = ParseQuery.getQuery("Image");
+                        query.whereEqualTo("User", user);
+                        query.whereEqualTo("date", dateTime);
+                        query.findInBackground(new FindCallback<ParseObject>() {
+                            @Override
+                            public void done(List<ParseObject> objects, ParseException e) {
+                                for(ParseObject receipt : objects){
+                                    receipt.put("isFave",true);
+                                    receipt.saveInBackground();
+                                }
+                            }
+                        });
 
                     }
-                    catch(Exception e){
-                        e.printStackTrace();
-                    }
+                    else {
+                        try {
+                            String dateTime = receiptsA.get(position).dateTime;
+                            String path = Environment.getExternalStorageDirectory().toString() +
+                                    "/Papurrless/scanned-data" + dateTime;
 
+                            ArrayList<String> data = new ArrayList();
+                            File file = new File(path);
+                            FileInputStream fis = new FileInputStream(file);
+                            BufferedReader br = new BufferedReader(new InputStreamReader(fis));
+
+                            data.add("isFavorite");
+                            String line;
+                            while ((line = br.readLine()) != null) {
+                                data.add(line);
+                            }
+                            file.delete();
+                            FileWriter fw = new FileWriter(file);
+                            BufferedWriter bw = new BufferedWriter(fw);
+                            for (String lines : data) {
+                                bw.write(lines + "\n");
+                            }
+                            bw.flush();
+                            bw.close();
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
                     notifyDataSetChanged();
                     //update database with isFavorite = true
                 }
@@ -739,6 +790,9 @@ public class ListFragment extends Fragment {
 
     //This fragment holds the favourite cards
     public static class FavFragment extends ListFragment {
+        byte[] imgg;
+        final ParseUser user = ParseUser.getCurrentUser();
+
         public static ListFragment newInstance(int sectionNumber, boolean premium) {
             premiumEnabled = premium;
             ListFragment fragment = new FavFragment();
@@ -749,26 +803,79 @@ public class ListFragment extends Fragment {
         }
 
         private void initializeData() {
-            final MainActivity mainActivity = (MainActivity)getActivity();
-            receipts = new ArrayList<>();
-            String path = Environment.getExternalStorageDirectory().toString() + "/Papurrless";
-            File f = new File(path);
-            File[] files = f.listFiles();
 
-            if (files.length > 0) {
-                for (int i = 0; i < files.length; i++) {
-                    if (files[i].getName().substring(0, 12).equals("scanned-data")) {
-                        List<String> receiptData = new ArrayList();
-                        try {
-                            BufferedReader br = new BufferedReader(new FileReader(files[i]));
-                            String line;
-                            while ((line = br.readLine()) != null) {
-                                receiptData.add(line);
+            final MainActivity mainActivity = (MainActivity)getActivity();
+
+            if (user != null  && user.get("isPremium").toString().equals("true")) {
+                ParseQuery<ParseObject> query = ParseQuery.getQuery("Image");
+                query.whereEqualTo("User", user);
+
+                query.findInBackground(new FindCallback<ParseObject>() {
+                    @Override
+                    public void done(List<ParseObject> objects, ParseException e) {
+                        if (objects.size() > 0) {
+                            for (int i = 0; i < objects.size(); i++) {
+                                //sometimes faulty receipts make the app crash
+                                if( objects.get(i).get("store") != null &&
+                                        objects.get(i).get("date") != null &&
+                                        objects.get(i).get("products") != null &&
+                                        objects.get(i).get("prices") != null &&
+                                        objects.get(i).get("subtotaal") != null &&
+                                        objects.get(i).get("isFave") != null) {
+
+                                    final String objectId = objects.get(i).getObjectId();
+                                    final String store = objects.get(i).get("store").toString();
+                                    final String date = objects.get(i).get("date").toString();
+                                    final String products = objects.get(i).get("products").toString();
+                                    final String prices = objects.get(i).get("prices").toString();
+                                    final String subtotaal = objects.get(i).get("subtotaal").toString();
+                                    final boolean isFavorite = Boolean.parseBoolean(objects.get(i).get("isFave").toString());
+                                    if (isFavorite) {
+
+                                        ParseFile img = (ParseFile) objects.get(i).get("Image");
+                                        if (img != null) {
+                                            img.getDataInBackground(new GetDataCallback() {
+                                                @Override
+                                                public void done(final byte[] data, ParseException e) {
+                                                    imgg = data;
+                                                    adapter.receiptsA.add(new ReceiptContent(imgg, store, date, products, prices, subtotaal, isFavorite, objectId, ""));
+                                                    adapter.notifyDataSetChanged();
+                                                }
+                                            });
+                                        } else {
+                                            adapter.receiptsA.add(new ReceiptContent(null, store, date, products, prices, subtotaal, isFavorite, objectId, ""));
+                                            adapter.notifyDataSetChanged();
+                                        }
+                                    }
+                                }
+                                else {
+                                    continue;
+                                }
                             }
-                            mainActivity.processReceipt(null, receiptData, true, false, files[i].getName().
-                                    substring(12,  files[i].getName().length()));
-                        } catch (Exception ex) {
-                            ex.printStackTrace();
+                        }
+                    }
+                });
+            }
+            else{
+                String path = Environment.getExternalStorageDirectory().toString() + "/Papurrless";
+                File f = new File(path);
+                File[] files = f.listFiles();
+
+                if (files.length > 0) {
+                    for (int i = 0; i < files.length; i++) {
+                        if (files[i].getName().substring(0, 12).equals("scanned-data")) {
+                            List<String> receiptData = new ArrayList();
+                            try {
+                                BufferedReader br = new BufferedReader(new FileReader(files[i]));
+                                String line;
+                                while ((line = br.readLine()) != null) {
+                                    receiptData.add(line);
+                                }
+                                mainActivity.processReceipt(null, receiptData, true, true, files[i].getName().
+                                        substring(12, files[i].getName().length()));
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                            }
                         }
                     }
                 }
@@ -787,8 +894,9 @@ public class ListFragment extends Fragment {
             rv = (RecyclerView) rootView.findViewById(R.id.cardList);
             rv.setHasFixedSize(true);
             rv.setLayoutManager(llm);
-            initializeData();
+            receipts = new ArrayList<>();
             adapter = new RVAdapter(receipts, true);
+            initializeData();
             rv.setAdapter(adapter);
             rv.addOnScrollListener(new EndlessRecyclerViewScrollListener(llm) {
                 @Override
@@ -830,7 +938,6 @@ public class ListFragment extends Fragment {
         private void initializeData() {
             final MainActivity mainActivity = (MainActivity)getActivity();
 
-            System.out.println("userrrr"+user);
             if (user != null  && user.get("isPremium").toString().equals("true")) {
                 ParseQuery<ParseObject> query = ParseQuery.getQuery("Image");
                 query.whereEqualTo("User", user);
@@ -840,24 +947,44 @@ public class ListFragment extends Fragment {
                     public void done(List<ParseObject> objects, ParseException e) {
                         if (objects.size() > 0) {
                             for (int i = 0; i < objects.size(); i++) {
-                                final String objectId = objects.get(i).getObjectId();
-                                final String store = objects.get(i).get("store").toString();
-                                final String date = objects.get(i).get("date").toString();
-                                final String products = objects.get(i).get("products").toString();
-                                final String prices = objects.get(i).get("prices").toString();
-                                final String subtotaal = objects.get(i).get("subtotaal").toString();
+                                //sometimes faulty receipts make the app crash
+                                if( objects.get(i).get("store") != null &&
+                                    objects.get(i).get("date") != null &&
+                                    objects.get(i).get("products") != null &&
+                                    objects.get(i).get("prices") != null &&
+                                    objects.get(i).get("subtotaal") != null &&
+                                    objects.get(i).get("isFave") != null) {
+
+                                        final String objectId = objects.get(i).getObjectId();
+                                        final String store = objects.get(i).get("store").toString();
+                                        final String date = objects.get(i).get("date").toString();
+                                        final String products = objects.get(i).get("products").toString();
+                                        final String prices = objects.get(i).get("prices").toString();
+                                        final String subtotaal = objects.get(i).get("subtotaal").toString();
+                                        final boolean isFavorite = Boolean.parseBoolean(objects.get(i).get("isFave").toString());
 
 
                                 ParseFile img = (ParseFile) objects.get(i).get("Image");
-                                img.getDataInBackground(new GetDataCallback() {
-                                    @Override
-                                    public void done(final byte[] data, ParseException e) {
-                                        imgg = data;
-                                        receipts.add(new ReceiptContent(imgg, store, date, products, prices, subtotaal, false, objectId, ""));
-                                        adapter.notifyDataSetChanged();
-                                    }
-                                });
+                                if(img != null) {
+                                    img.getDataInBackground(new GetDataCallback() {
+                                        @Override
+                                        public void done(final byte[] data, ParseException e) {
+                                            imgg = data;
+                                            receipts.add(new ReceiptContent(imgg, store, date, products, prices, subtotaal, isFavorite, objectId, ""));
+                                            adapter.notifyDataSetChanged();
+                                        }
+                                    });
+                                }
+                                else{
+                                    receipts.add(new ReceiptContent(null, store, date, products, prices, subtotaal, isFavorite, objectId, ""));
+                                    adapter.notifyDataSetChanged();
+                                }
 
+                            }
+                            else{
+                                    Toast.makeText(getActivity().getBaseContext(), "Faulty receipt not loaded", Toast.LENGTH_LONG).show();
+                                continue;
+                            }
                             }
                         }
                     }
@@ -880,6 +1007,7 @@ public class ListFragment extends Fragment {
                     if (files[i].getName().substring(0, 12).equals("scanned-data")) {
                         storedFiles.add(files[i]);
                         if (firstInvoke) {
+                            System.out.println("mr first invoke");
                             List<String> receiptData = new ArrayList();
                             try {
                                 BufferedReader br = new BufferedReader(new FileReader(files[i]));
@@ -887,7 +1015,7 @@ public class ListFragment extends Fragment {
                                 while ((line = br.readLine()) != null) {
                                     receiptData.add(line);
                                 }
-                                mainActivity.processReceipt(null, receiptData, true, false, files[i].getName().
+                                mainActivity.processReceipt(null, receiptData, true, true, files[i].getName().
                                         substring(12, files[i].getName().length()));
 
                             } catch(Exception ex){
@@ -909,18 +1037,64 @@ public class ListFragment extends Fragment {
             }
         }
 
+        //this literally is the dirtiest function of all the code in this class, please bear with me
         public void prepareOfflineFiles(final List<File> files, Activity activity){
             final MainActivity mainActivity = (MainActivity) activity;
             final List<File> storedFiles = files;
-            final List<File> toBeUploaded = new ArrayList();
-            for(final File file : storedFiles) {
-                ParseQuery<ParseObject> query = ParseQuery.getQuery("Image");
-                if(query.whereEqualTo("createdAt", file.getName().substring(12, (file.getName().length() - 4))) != null) {
+            final List<File> toBeUploaded = Collections.synchronizedList(new ArrayList());
 
-                    query.findInBackground(new FindCallback<ParseObject>() {
-                        @Override
-                        public void done(List<ParseObject> objects, ParseException e) {
-                            toBeUploaded.add(file);
+            ParseQuery<ParseObject> query = ParseQuery.getQuery("Image");
+            query.whereEqualTo("User", user);
+               // query.whereEqualTo("date", file.getName().substring(12, (file.getName().length() - 4)));
+
+            query.findInBackground(new FindCallback<ParseObject>() {
+                @Override
+                public void done(List<ParseObject> objects, ParseException e) {
+                    if (objects.size() > 0 && e == null) {
+                        outerLoop:
+                        for (File file : storedFiles) {
+                            for (ParseObject onlineReceipt : objects) {
+                                if (file.getName().substring(12, (file.getName().length() - 4))
+                                        .equals(onlineReceipt.get("date").toString())) {
+                                    synchronized (toBeUploaded) {
+                                        if (toBeUploaded.contains(file)) {
+                                            toBeUploaded.remove(file);
+                                        }
+                                        continue outerLoop;
+                                    }
+                                } else {
+                                    synchronized (toBeUploaded) {
+                                        if (!toBeUploaded.contains(file)) {
+                                            toBeUploaded.add(file);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        if (toBeUploaded.size() > 0) {
+                            synchronized (toBeUploaded) {
+                                for (File file : toBeUploaded) {
+                                    List<String> receiptData = new ArrayList();
+                                    try {
+                                        BufferedReader br = new BufferedReader(new FileReader(file));
+                                        String line;
+                                        while ((line = br.readLine()) != null) {
+                                            receiptData.add(line);
+                                        }
+                                        mainActivity.setImageFilePath(file.getAbsolutePath());
+                                        mainActivity.processReceipt(mainActivity.getImageByte(file.getAbsolutePath()), receiptData, false, false, file.getName().
+                                                substring(12, (file.getName().length() - 4)));
+                                        //file.delete();
+                                    } catch (Exception ex) {
+                                        ex.printStackTrace();
+                                    }
+                                }
+                            }
+                        } else {
+                            Toast.makeText(getActivity(), "One or more Receipt already exists in the cloud!", Toast.LENGTH_SHORT).show();
+                        }
+                    } else if (objects.size() == 0 && e == null) {
+                        for (File file : storedFiles) {
                             List<String> receiptData = new ArrayList();
                             try {
                                 BufferedReader br = new BufferedReader(new FileReader(file));
@@ -929,17 +1103,21 @@ public class ListFragment extends Fragment {
                                     receiptData.add(line);
                                 }
                                 mainActivity.setImageFilePath(file.getAbsolutePath());
-                                mainActivity.processReceipt(mainActivity.getImageByte(file.getAbsolutePath()), receiptData, false, true, file.getName().
+                                mainActivity.processReceipt(mainActivity.getImageByte(file.getAbsolutePath()), receiptData, false, false, file.getName().
                                         substring(12, (file.getName().length() - 4)));
-                                file.delete();
+                                //file.delete();
                             } catch (Exception ex) {
                                 ex.printStackTrace();
                             }
                         }
-                    });
+                    } else {
+                        Toast.makeText(getActivity(), "Something went wrong, please try again", Toast.LENGTH_SHORT).show();
+                        e.printStackTrace();
+                    }
                 }
+                });
             }
-        }
+
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
