@@ -8,6 +8,8 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.annotation.ColorRes;
@@ -69,6 +71,12 @@ public class ListFragment extends Fragment {
     public ListFragment() {
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle savedState) {
+        super.onSaveInstanceState(savedState);
+        savedState.putParcelableArrayList("receipts", adapter.receiptsA);
+    }
+
     /**
      * Returns a new instance of this fragment for the given section
      * number.
@@ -94,7 +102,7 @@ public class ListFragment extends Fragment {
     LinearLayoutManager llm = new LinearLayoutManager(getContext());
 
     //These are the receipt previews
-    class ReceiptContent {
+    class ReceiptContent implements Parcelable {
         String market;
         String dateTime;
         String date; //changes the toolbar color to match branding
@@ -205,6 +213,61 @@ public class ListFragment extends Fragment {
             else
                 return prices.substring(pricesPreviewDivider + 1);
         }
+
+        protected ReceiptContent(Parcel in) {
+            image = new byte[in.readInt()];
+            in.readByteArray(image);
+            isFavorite = (in.readInt()>0);
+            isShort = (in.readInt()>0);
+            market = in.readString();
+            dateTime = in.readString();
+            date = in.readString();
+            marketColor = in.readInt();
+            products = in.readString();
+            prices = in.readString();
+            totalprice = in.readString();
+            receiptId = in.readString();
+            imagePath = in.readString();
+            pricesPreviewDivider = in.readInt();
+            productsPreviewDivider = in.readInt();
+        }
+
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            dest.writeInt(image.length);
+            dest.writeByteArray(image);
+            dest.writeInt(isFavorite ? 1 : 0);
+            dest.writeInt(isShort?1:0);
+            dest.writeString(market);
+            dest.writeString(dateTime);
+            dest.writeString(date);
+            dest.writeInt(marketColor);
+            dest.writeString(products);
+            dest.writeString(prices);
+            dest.writeString(totalprice);
+            dest.writeString(receiptId);
+            dest.writeString(imagePath);
+            dest.writeInt(pricesPreviewDivider);
+            dest.writeInt(productsPreviewDivider);
+        }
+
+        @SuppressWarnings("unused")
+        public final Parcelable.Creator<ReceiptContent> CREATOR = new Parcelable.Creator<ReceiptContent>() {
+            @Override
+            public ReceiptContent createFromParcel(Parcel in) {
+                return new ReceiptContent(in);
+            }
+
+            @Override
+            public ReceiptContent[] newArray(int size) {
+                return new ReceiptContent[size];
+            }
+        };
     }
 
 
@@ -267,14 +330,14 @@ public class ListFragment extends Fragment {
 
     }
 
-    private static List<ReceiptContent> receipts;
+    private static ArrayList<ReceiptContent> receipts;
 
     public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ReceiptViewHolder> {
 
-        public List<ReceiptContent> receiptsA;
+        public ArrayList<ReceiptContent> receiptsA;
         boolean isFavoriteList = false;
 
-        RVAdapter(List<ReceiptContent> receipts) {
+        RVAdapter(ArrayList<ReceiptContent> receipts) {
             this.receiptsA = receipts;
         }
 
@@ -282,7 +345,7 @@ public class ListFragment extends Fragment {
             receiptsA.addAll(newReceipts);
         }
 
-        RVAdapter(List<ReceiptContent> receipts, boolean isFavoriteList) {
+        RVAdapter(ArrayList<ReceiptContent> receipts, boolean isFavoriteList) {
             this.receiptsA = receipts;
             this.isFavoriteList = isFavoriteList;
         }
@@ -896,7 +959,15 @@ public class ListFragment extends Fragment {
             rv.setLayoutManager(llm);
             receipts = new ArrayList<>();
             adapter = new RVAdapter(receipts, true);
-            initializeData();
+            if(savedInstanceState==null || !savedInstanceState.containsKey("receipts"))
+            {
+                initializeData();
+            }
+            else
+            {
+                adapter.receiptsA = savedInstanceState.getParcelableArrayList("receipts");
+                adapter.notifyDataSetChanged();
+            }
             rv.setAdapter(adapter);
             rv.addOnScrollListener(new EndlessRecyclerViewScrollListener(llm) {
                 @Override
@@ -1115,7 +1186,7 @@ public class ListFragment extends Fragment {
                         e.printStackTrace();
                     }
                 }
-                });
+            });
             }
 
 
@@ -1127,8 +1198,16 @@ public class ListFragment extends Fragment {
             rv.setHasFixedSize(true);
             rv.setLayoutManager(llm);
             receipts = new ArrayList<>();
-            adapter = new RVAdapter(receipts);
-            initializeData();
+            adapter = new RVAdapter(receipts, true);
+            if(savedInstanceState==null || !savedInstanceState.containsKey("receipts"))
+            {
+                initializeData();
+            }
+            else
+            {
+                adapter.receiptsA = savedInstanceState.getParcelableArrayList("receipts");
+                adapter.notifyDataSetChanged();
+            }
             rv.setAdapter(adapter);
             rv.addOnScrollListener(new EndlessRecyclerViewScrollListener(llm) {
                 @Override
