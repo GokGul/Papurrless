@@ -45,10 +45,11 @@
     <android.support.percent.PercentRelativeLayout
         android:id="@+id/editorContainer"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_below="@+id/appbar">
+        android:layout_below="@+id/appbar"
+        android:layout_above="@+id/editTotalPrice">
 
         <EditText
             app:layout_widthPercent="70%"
