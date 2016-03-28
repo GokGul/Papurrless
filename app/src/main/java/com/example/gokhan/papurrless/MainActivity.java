@@ -105,19 +105,6 @@ public class MainActivity extends AppCompatActivity {
         premiumEnabled = sharedPref.getBoolean(getString(R.string.premiumEnabled), false);
         editor = sharedPref.edit();
 
-        if(isOnline(getApplicationContext()))
-        {
-            //log in/check credentials
-
-            //sync databases
-
-            Toast.makeText(this, "User is online.", Toast.LENGTH_SHORT).show(); //test, remove later
-        }
-        else
-        {
-            Toast.makeText(this, "User is offline.", Toast.LENGTH_SHORT).show(); //test, remove later
-        }
-
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         // Create the adapter that will return a fragment for each of the three
