@@ -239,10 +239,19 @@ public class ListFragment extends Fragment {
 
         @Override
         public void writeToParcel(Parcel dest, int flags) {
-            dest.writeInt(image.length);
-            dest.writeByteArray(image);
+            if(image!=null)
+            {
+                dest.writeInt(image.length);
+                dest.writeByteArray(image);
+            }
+            else
+            {
+                dest.writeInt(0);
+                byte[] i = new byte[0];;
+                dest.writeByteArray(i);
+            }
             dest.writeInt(isFavorite ? 1 : 0);
-            dest.writeInt(isShort?1:0);
+            dest.writeInt(isShort ? 1 : 0);
             dest.writeString(market);
             dest.writeString(dateTime);
             dest.writeString(date);
@@ -251,7 +260,14 @@ public class ListFragment extends Fragment {
             dest.writeString(prices);
             dest.writeString(totalprice);
             dest.writeString(receiptId);
-            dest.writeString(imagePath);
+            if(imagePath!=null)
+            {
+                dest.writeString(imagePath);
+            }
+            else
+            {
+                dest.writeString("");
+            }
             dest.writeInt(pricesPreviewDivider);
             dest.writeInt(productsPreviewDivider);
         }
