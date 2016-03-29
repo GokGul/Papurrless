@@ -638,6 +638,7 @@ public class ListFragment extends Fragment {
                 editor.putExtra("totalprice", receiptsA.get(position).totalprice);
                 editor.putExtra("isFavorite", receiptsA.get(position).isFavorite);
                 editor.putExtra("receiptId", receiptsA.get(position).receiptId);
+                //editor.put("dateTime")
                 startActivity(editor);
             }
 

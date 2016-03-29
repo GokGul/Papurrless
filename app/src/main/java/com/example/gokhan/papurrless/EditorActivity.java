@@ -15,6 +15,12 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.parse.FindCallback;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
+import com.parse.ParseUser;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -22,12 +28,14 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.List;
 
 public class EditorActivity extends AppCompatActivity {
 
-    String date, market, productsS, pricesS, totalprice;
+    String date, market, productsS, pricesS, totalprice, dateTime;
     boolean isFavoriteS;
     int receiptId;
+    ParseUser user;
 
     Spinner marketSpinner;
     EditText productsEdit, pricesEdit, totalpriceEdit;
@@ -36,6 +44,9 @@ public class EditorActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_editor);
+
+        user = ParseUser.getCurrentUser();
+
         TextView dateDisplay = (TextView) findViewById(R.id.date);
         marketSpinner = (Spinner) findViewById(R.id.supermarket);
         ArrayAdapter<CharSequence> adapter;
@@ -55,7 +66,7 @@ public class EditorActivity extends AppCompatActivity {
             totalprice = extras.getString("totalprice");
             isFavoriteS = extras.getBoolean("isFavorite");
             receiptId = extras.getInt("receiptId");
-
+            //dateTime = extras.getString("dateTime");
             dateDisplay.setText(date);
             productsEdit.setText(productsS);
             pricesEdit.setText(pricesS);
@@ -72,6 +83,10 @@ public class EditorActivity extends AppCompatActivity {
         }
     }
 
+    public void getReceipt(){
+
+    }
+
     public void cancel(View view) {
         finish();
     }
@@ -79,9 +94,15 @@ public class EditorActivity extends AppCompatActivity {
     public void ok(View view) {
         getAllStrings();
 
+        if(user.get("isPremium").toString().equals("true")){
+            updateOnlineStorage();
+        }
+        else{
+            updateLocalStorage();
+        }
         //update het receipt in de storage (en evt. de cloud)
-        updateLocalStorage();
-        updateOnlineStorage();
+
+
 
         //restart de app:
         Intent i = new Intent(this, MainActivity.class);
@@ -141,7 +162,25 @@ public class EditorActivity extends AppCompatActivity {
     }
 
     public void updateOnlineStorage() {
-        //nobody here but us comments
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("Image");
+        query.whereEqualTo("User", user);
+        query.whereEqualTo("date", date);
+        query.findInBackground(new FindCallback<ParseObject>() {
+            @Override
+            public void done(List<ParseObject> objects, ParseException e) {
+                for(ParseObject selectedReceipt : objects){
+                    selectedReceipt.put("store", market);
+                    selectedReceipt.put("products", productsS);
+                    selectedReceipt.put("prices", pricesS);
+                    selectedReceipt.put("subtotaal", totalprice);
+                    try {
+                        selectedReceipt.save();
+                    } catch (ParseException e1) {
+                        e1.printStackTrace();
+                    }
+                }
+            }
+        });
     }
 
 }
