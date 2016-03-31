@@ -1,32 +1,20 @@
 package com.example.gokhan.papurrless;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.provider.MediaStore;
-import android.provider.Settings;
-import android.support.annotation.ColorRes;
-import android.support.annotation.MenuRes;
 import android.support.design.widget.Snackbar;
 import android.support.percent.PercentRelativeLayout;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
@@ -35,10 +23,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.gokhan.papurrless.R;
 import com.parse.FindCallback;
 import com.parse.GetDataCallback;
-import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseObject;
@@ -952,7 +938,7 @@ public class ListFragment extends Fragment {
                                     receiptData.add(line);
                                 }
                                 mainActivity.processReceipt(null, receiptData, true, true, files[i].getName().
-                                        substring(12, files[i].getName().length()));
+                                        substring(12, files[i].getName().length()), false);
                             } catch (Exception ex) {
                                 ex.printStackTrace();
                             }
@@ -1095,7 +1081,6 @@ public class ListFragment extends Fragment {
                     if (files[i].getName().substring(0, 12).equals("scanned-data")) {
                         storedFiles.add(files[i]);
                         if (firstInvoke) {
-                            System.out.println("mr first invoke");
                             List<String> receiptData = new ArrayList();
                             try {
                                 BufferedReader br = new BufferedReader(new FileReader(files[i]));
@@ -1104,7 +1089,7 @@ public class ListFragment extends Fragment {
                                     receiptData.add(line);
                                 }
                                 mainActivity.processReceipt(null, receiptData, true, true, files[i].getName().
-                                        substring(12, files[i].getName().length()));
+                                        substring(12, files[i].getName().length()), false);
 
                             } catch(Exception ex){
                                 ex.printStackTrace();
@@ -1115,10 +1100,10 @@ public class ListFragment extends Fragment {
             } else {
                 Toast.makeText(getActivity(), "No local receipt files found", Toast.LENGTH_SHORT).show();
             }
-            if(user != null && !firstInvoke) {
+            if(user != null && firstInvoke == false) {
                 if (user.get("isPremium").toString().equals("true")) {
                     prepareOfflineFiles(storedFiles, mainActivity);
-                    adapter.notifyDataSetChanged();
+                    //adapter.notifyDataSetChanged();
                 } else {
                     Toast.makeText(getActivity(), "This is a premium feature", Toast.LENGTH_SHORT).show();
                 }
@@ -1131,10 +1116,9 @@ public class ListFragment extends Fragment {
             final List<File> storedFiles = files;
             final List<File> toBeUploaded = Collections.synchronizedList(new ArrayList());
 
+
             ParseQuery<ParseObject> query = ParseQuery.getQuery("Image");
             query.whereEqualTo("User", user);
-               // query.whereEqualTo("date", file.getName().substring(12, (file.getName().length() - 4)));
-
             query.findInBackground(new FindCallback<ParseObject>() {
                 @Override
                 public void done(List<ParseObject> objects, ParseException e) {
@@ -1142,18 +1126,20 @@ public class ListFragment extends Fragment {
                         outerLoop:
                         for (File file : storedFiles) {
                             for (ParseObject onlineReceipt : objects) {
-                                if (file.getName().substring(12, (file.getName().length() - 4))
-                                        .equals(onlineReceipt.get("date").toString())) {
-                                    synchronized (toBeUploaded) {
-                                        if (toBeUploaded.contains(file)) {
-                                            toBeUploaded.remove(file);
+                                if (onlineReceipt.get("date") != null) {
+                                    if (file.getName().substring(12, (file.getName().length() - 4))
+                                            .equals(onlineReceipt.get("date").toString())) {
+                                        synchronized (toBeUploaded) {
+                                            if (toBeUploaded.contains(file)) {
+                                                toBeUploaded.remove(file);
+                                            }
+                                            continue outerLoop;
                                         }
-                                        continue outerLoop;
-                                    }
-                                } else {
-                                    synchronized (toBeUploaded) {
-                                        if (!toBeUploaded.contains(file)) {
-                                            toBeUploaded.add(file);
+                                    } else {
+                                        synchronized (toBeUploaded) {
+                                            if (!toBeUploaded.contains(file)) {
+                                                toBeUploaded.add(file);
+                                            }
                                         }
                                     }
                                 }
@@ -1171,7 +1157,7 @@ public class ListFragment extends Fragment {
                                         }
                                         mainActivity.setImageFilePath(file.getAbsolutePath());
                                         mainActivity.processReceipt(mainActivity.getImageByte(file.getAbsolutePath()), receiptData, false, false, file.getName().
-                                                substring(12, (file.getName().length() - 4)));
+                                                substring(12, (file.getName().length() - 4)), true);
                                         //file.delete();
                                     } catch (Exception ex) {
                                         ex.printStackTrace();
@@ -1180,7 +1166,9 @@ public class ListFragment extends Fragment {
                             }
                         } else {
                             Toast.makeText(getActivity(), "One or more Receipt already exists in the cloud!", Toast.LENGTH_SHORT).show();
+                            return;
                         }
+
                     } else if (objects.size() == 0 && e == null) {
                         for (File file : storedFiles) {
                             List<String> receiptData = new ArrayList();
@@ -1192,8 +1180,7 @@ public class ListFragment extends Fragment {
                                 }
                                 mainActivity.setImageFilePath(file.getAbsolutePath());
                                 mainActivity.processReceipt(mainActivity.getImageByte(file.getAbsolutePath()), receiptData, false, false, file.getName().
-                                        substring(12, (file.getName().length() - 4)));
-                                //file.delete();
+                                        substring(12, (file.getName().length() - 4)), true);
                             } catch (Exception ex) {
                                 ex.printStackTrace();
                             }
@@ -1201,10 +1188,12 @@ public class ListFragment extends Fragment {
                     } else {
                         Toast.makeText(getActivity(), "Something went wrong, please try again", Toast.LENGTH_SHORT).show();
                         e.printStackTrace();
+                        return;
                     }
+                    mainActivity.saveAllToCloud();
                 }
             });
-            }
+        }
 
 
         @Override

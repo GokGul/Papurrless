@@ -48,8 +48,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.text.SimpleDateFormat;
@@ -84,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
 
     String imageFilePath;
     private String outputPath = "result.txt";
-
+    private List<ParseObject> queuedForUpload = new ArrayList();
     private boolean premiumEnabled = false;
 
     ParseUser user = ParseUser.getCurrentUser();
@@ -192,6 +190,11 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    /**
+     *
+     * This method crashes at version 6.0
+     * http://stackoverflow.com/questions/32561479/android-studio-getslotfrombufferlocked-unknown-buffer-error/33146256
+     * */
     public void logOut() {
 
         user.logOut();
@@ -364,7 +367,7 @@ public class MainActivity extends AppCompatActivity {
                 fis.close();
             }
 
-            processReceipt(null, receiptLines, false, true, "");
+            processReceipt(null, receiptLines, false, true, "", false);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -387,7 +390,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void processReceipt(byte[] imageIn, List<String> lines, boolean invokedFromStorage, boolean saveToStorage, String date){
+    public void processReceipt(byte[] imageIn, List<String> lines, boolean invokedFromStorage, boolean saveToStorage, String date, boolean queue){
 
         byte[] imageOut;
         //invoked after taking a picture
@@ -519,8 +522,9 @@ public class MainActivity extends AppCompatActivity {
             if(saveToStorage) {
                 saveDataToStorage(linesToFile);
             }
+            saveDataToCloud(groceryStore, products, prices, subtotaal, newDate, isFavorite, queue);
             allFrag.addReceipt(allFrag.new ReceiptContent(imageOut, groceryStore, newDate, products, prices, subtotaal, isFavorite, "", imageFilePath));
-            saveDataToCloud(groceryStore, products, prices, subtotaal, newDate, isFavorite);
+
         }
         else{
             if(isFavorite){
@@ -534,8 +538,13 @@ public class MainActivity extends AppCompatActivity {
     public void setImageFilePath(String path){
         imageFilePath = path;
     }
-    private void saveDataToCloud(String store, String products, String prices, String subtotaal, String date, boolean isFavorite) {
+    private void saveDataToCloud(String store, String products, String prices, String subtotaal, String date, boolean isFavorite, boolean queue) {
 
+        if(queue){
+            img = new ParseObject("Image");
+            img.put("User", user);
+
+        }
         if(user.get("isPremium").toString().equals("true")){
             if(store.isEmpty() || products.isEmpty() || prices.isEmpty() || subtotaal.isEmpty()){
                 Toast.makeText(MainActivity.this, "Cannot upload empty values!", Toast.LENGTH_SHORT).show();
@@ -550,21 +559,41 @@ public class MainActivity extends AppCompatActivity {
                 img.put("subtotaal", subtotaal);
                 img.put("date", date);
                 img.put("isFave", isFavorite);
-                img.saveInBackground(new SaveCallback(){
-                    @Override
-                    public void done(ParseException e) {
-                        if(e == null) {
-                            Toast.makeText(MainActivity.this, "Premium: Receipt got uploaded to the cloud!", Toast.LENGTH_SHORT).show();
+
+                if(!queue) {
+                    img.saveInBackground(new SaveCallback() {
+                        @Override
+                        public void done(ParseException e) {
+                            if (e == null) {
+                                Toast.makeText(MainActivity.this, "Premium: Receipt got uploaded to the cloud!", Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(MainActivity.this, "Failed to upload data, try again", Toast.LENGTH_SHORT).show();
+                                e.printStackTrace();
+                            }
                         }
-                        else{
-                            Toast.makeText(MainActivity.this, "Failed to upload data, try again", Toast.LENGTH_SHORT).show();
-                            e.printStackTrace();
-                        }
-                    }
-                });
+                    });
+                }else{
+                    queuedForUpload.add(img);
+                }
             }
         }else{
             Toast.makeText(MainActivity.this, "This is a premium feature", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void saveAllToCloud(){
+        try {
+            ParseObject.saveAllInBackground(queuedForUpload, new SaveCallback() {
+                @Override
+                public void done(ParseException e) {
+
+                    queuedForUpload.clear();
+                    Toast.makeText(MainActivity.this, "All receipts have been uploaded!", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+        catch(Exception e){
+            e.printStackTrace();
         }
     }
 
