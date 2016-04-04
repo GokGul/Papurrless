@@ -1204,7 +1204,7 @@ public class ListFragment extends Fragment {
             rv.setHasFixedSize(true);
             rv.setLayoutManager(llm);
             receipts = new ArrayList<>();
-            adapter = new RVAdapter(receipts, true);
+            adapter = new RVAdapter(receipts, false);
             if(savedInstanceState==null || !savedInstanceState.containsKey("receipts"))
             {
                 initializeData();

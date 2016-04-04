@@ -32,7 +32,7 @@ import java.util.List;
 
 public class EditorActivity extends AppCompatActivity {
 
-    String date, market, productsS, pricesS, totalprice, dateTime;
+    String date, market, productsS, pricesS, totalprice;
     boolean isFavoriteS;
     int receiptId;
     ParseUser user;
@@ -81,10 +81,6 @@ public class EditorActivity extends AppCompatActivity {
                 marketSpinner.setSelection(spinnerPosition);
             }
         }
-    }
-
-    public void getReceipt(){
-
     }
 
     public void cancel(View view) {

@@ -38,8 +38,8 @@ public class AsyncProcessTask extends AsyncTask<String, String, Boolean> {
         try{
             Client restClient = new Client();
 
-            restClient.applicationId = "no more papurr";
-            restClient.password = "XypcE95nJQj7hg9WDeUSZOez";
+            restClient.applicationId = "Papurrless";
+            restClient.password = "h3eShtewSsY15PRHCy6VtPLC";
 
             // Obtain installation id when running the application for the first time
             SharedPreferences settings = activity.getPreferences(Activity.MODE_PRIVATE);

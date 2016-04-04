@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
     private final int TAKE_PICTURE = 0;
     private final int SELECT_FILE = 1;
 
-    String imageFilePath;
+    private String imageFilePath;
     private String outputPath = "result.txt";
     private List<ParseObject> queuedForUpload = new ArrayList();
     private boolean premiumEnabled = false;
