@@ -556,7 +556,7 @@ public class ListFragment extends Fragment {
                         }
                     }
                     delOtherList(receiptsA.get(position).receiptId);
-                    receipts.get(position).isFavorite = false;
+                    receiptsA.get(position).isFavorite = false;
                     notifyDataSetChanged();
                     //update database with isFavorite = false
                 } else    //adds to fav list, updates view
