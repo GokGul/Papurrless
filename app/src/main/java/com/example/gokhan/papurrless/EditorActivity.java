@@ -90,7 +90,7 @@ public class EditorActivity extends AppCompatActivity {
     public void ok(View view) {
         getAllStrings();
 
-        if(user.get("isPremium").toString().equals("true")){
+        if(user!= null && user.get("isPremium").toString().equals("true")){
             updateOnlineStorage();
         }
         else{

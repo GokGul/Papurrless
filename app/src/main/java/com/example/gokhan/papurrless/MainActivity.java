@@ -472,16 +472,6 @@ public class MainActivity extends AppCompatActivity {
                         linesToFile.add(groceryStore);
                         isGroceryStore = false;
                         break;
-                    case "Dirk":
-                        groceryStore = "Dirk";
-                        linesToFile.add(groceryStore);
-                        isGroceryStore = false;
-                        break;
-                    case "Dink":
-                        groceryStore = "Dirk";
-                        linesToFile.add(groceryStore);
-                        isGroceryStore = false;
-                        break;
                     default: continue;
                 }
             }
@@ -522,7 +512,9 @@ public class MainActivity extends AppCompatActivity {
             if(saveToStorage) {
                 saveDataToStorage(linesToFile);
             }
-            saveDataToCloud(groceryStore, products, prices, subtotaal, newDate, isFavorite, queue);
+            if(user != null) {
+                saveDataToCloud(groceryStore, products, prices, subtotaal, newDate, isFavorite, queue);
+            }
             allFrag.addReceipt(allFrag.new ReceiptContent(imageOut, groceryStore, newDate, products, prices, subtotaal, isFavorite, "", imageFilePath));
 
         }

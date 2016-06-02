@@ -610,7 +610,6 @@ public class ListFragment extends Fragment {
                         }
                     }
                     notifyDataSetChanged();
-                    //update database with isFavorite = true
                 }
             }
 
@@ -935,6 +934,10 @@ public class ListFragment extends Fragment {
                                 BufferedReader br = new BufferedReader(new FileReader(files[i]));
                                 String line;
                                 while ((line = br.readLine()) != null) {
+                                    if(!line.equals("isFavorite")){
+                                        //is not a favorite receipt so
+                                        return;
+                                    }
                                     receiptData.add(line);
                                 }
                                 mainActivity.processReceipt(null, receiptData, true, true, files[i].getName().
@@ -944,6 +947,9 @@ public class ListFragment extends Fragment {
                             }
                         }
                     }
+                }
+                else{
+                    Toast.makeText(getActivity(), "No local receipt files found", Toast.LENGTH_SHORT).show();
                 }
             }
         }
